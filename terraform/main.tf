@@ -37,9 +37,24 @@ resource "google_project_service" "secretmanager" {
 }
 
 resource "google_project_service" "compute" {
-  service                    = "compute.googleapis.com"
-  disable_dependent_services = true
-  disable_on_destroy         = false
+  service            = "compute.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "artifact_registry" {
+  service            = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_artifact_registry_repository" "docker_repo" {
+  provider      = google-beta
+  location      = var.gcp_region
+  repository_id = "trainbot-repo"
+  description   = "Docker repository for trainbot images"
+  format        = "DOCKER"
+  depends_on = [
+    google_project_service.artifact_registry
+  ]
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -59,6 +74,12 @@ resource "google_compute_subnetwork" "gke_subnet" {
   secondary_ip_range {
     range_name    = "services"
     ip_cidr_range = "10.0.32.0/22"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      secondary_ip_range,
+    ]
   }
 }
 

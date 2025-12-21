@@ -5,10 +5,12 @@
 replicaCount: 1
 
 image:
-  repository: gcr.io/prj-i-solid-ocelot-cf27/trainbot
+  # The image repository is dynamically set by the 'scripts/deploy.sh' script
+  # during 'helm upgrade'. Example: europe-west2-docker.pkg.dev/your-gcp-project/trainbot-repo/trainbot
+  repository: placeholder-repository
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  # The image tag is also set by the 'scripts/deploy.sh' script.
+  tag: ""
 
 service:
   type: LoadBalancer
