@@ -1,0 +1,29 @@
+# Default values for trainbot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: gcr.io/prj-i-solid-ocelot-cf27/trainbot
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+env:
+  NODE_ENV: "production"
+  GCP_PROJECT_ID: "prj-i-solid-ocelot-cf27"
+  SECRET_NAME: "trainbot-slack-secrets"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
