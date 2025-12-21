@@ -6,3 +6,5 @@ dist
 .terraform/
 *.tfvars
 .terraform.lock.hcl
+
+zscaler2048_sha256.crt

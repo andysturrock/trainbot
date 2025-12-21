@@ -4,6 +4,8 @@ interface AppSecrets {
   slackSigningSecret: string;
   slackBotToken: string;
   nationalRailApiKey: string;
+  nationalRailApiUrl: string;
+  slackTeamId: string;
 }
 
 export async function getSecrets(): Promise<AppSecrets> {
@@ -20,12 +22,16 @@ export async function getSecrets(): Promise<AppSecrets> {
       slackSigningSecret: secrets.SLACK_SIGNING_SECRET,
       slackBotToken: secrets.SLACK_BOT_TOKEN,
       nationalRailApiKey: secrets.NATIONAL_RAIL_API_KEY,
+      nationalRailApiUrl: secrets.NATIONAL_RAIL_API_URL,
+      slackTeamId: secrets.SLACK_TEAM_ID,
     };
   } else {
     return {
       slackSigningSecret: process.env.SLACK_SIGNING_SECRET!,
       slackBotToken: process.env.SLACK_BOT_TOKEN!,
       nationalRailApiKey: process.env.NATIONAL_RAIL_API_KEY!,
+      nationalRailApiUrl: process.env.NATIONAL_RAIL_API_URL!,
+      slackTeamId: process.env.SLACK_TEAM_ID!,
     };
   }
 }
