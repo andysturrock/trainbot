@@ -114,10 +114,11 @@ resource "google_service_account_iam_member" "workload_identity_user" {
 }
 
 resource "google_firestore_database" "database" {
-  project     = var.gcp_project_id
-  name        = "${var.gcp_project_id}-firestore-db"
-  location_id = var.gcp_region
-  type        = "FIRESTORE_NATIVE"
+  project         = var.gcp_project_id
+  name            = "${var.gcp_project_id}-firestore-db"
+  location_id     = var.gcp_region
+  type            = "FIRESTORE_NATIVE"
+  deletion_policy = "DELETE"
 }
 
 data "google_kms_key_ring" "gke_keyring" {
@@ -132,14 +133,14 @@ data "google_kms_crypto_key" "gke_key" {
 }
 
 resource "google_container_cluster" "primary" {
-  provider                 = google-beta
-  name                     = "${var.cluster_name}-cluster"
-  location                 = var.gcp_region
-  network                  = google_compute_network.vpc_network.name
-  subnetwork               = google_compute_subnetwork.gke_subnet.name
-  initial_node_count       = 1
-  deletion_protection      = false
-  enable_autopilot         = true
+  provider            = google-beta
+  name                = "${var.cluster_name}-cluster"
+  location            = var.gcp_region
+  network             = google_compute_network.vpc_network.name
+  subnetwork          = google_compute_subnetwork.gke_subnet.name
+  initial_node_count  = 1
+  deletion_protection = false
+  enable_autopilot    = true
 
   workload_identity_config {
     workload_pool = "${var.gcp_project_id}.svc.id.goog"
@@ -179,14 +180,14 @@ data "google_project" "project" {}
 
 resource "google_kms_crypto_key_iam_member" "gke_key_user" {
   crypto_key_id = data.google_kms_crypto_key.gke_key.id
-  role            = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member          = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
 resource "google_kms_crypto_key_iam_member" "compute_system_key_user" {
   crypto_key_id = data.google_kms_crypto_key.gke_key.id
-  role            = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member          = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
 }
 
 resource "google_compute_firewall" "gke_health_checks" {
