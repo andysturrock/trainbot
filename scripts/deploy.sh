@@ -14,6 +14,7 @@ IMAGE_NAME="trainbot"
 IMAGE_TAG="latest"
 ARTIFACT_REGISTRY_REPO="trainbot-repo"
 HELM_RELEASE_NAME="trainbot"
+GSA_NAME="trainbot-gke-nodes" # Google Service Account name
 
 # Get the absolute path of the script's directory
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -32,15 +33,18 @@ if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" ]]; then
     exit 1
 fi
 
-# Construct the Artifact Registry hostname and the full image name
+# Construct the Artifact Registry hostname, full image name, and GSA email
 REGISTRY_HOSTNAME="$GCP_REGION-docker.pkg.dev"
 FULL_IMAGE_NAME="$REGISTRY_HOSTNAME/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPO/$IMAGE_NAME:$IMAGE_TAG"
+GSA_EMAIL="$GSA_NAME@$GCP_PROJECT_ID.iam.gserviceaccount.com"
+
 
 # --- Main execution ---
 
 echo "--------------------------------------------------"
 echo "Deploying from project root: $PROJECT_ROOT"
 echo "Target image: $FULL_IMAGE_NAME"
+echo "Using GCP Service Account: $GSA_EMAIL"
 echo "--------------------------------------------------"
 
 # 1. Authenticate Docker with Artifact Registry
@@ -60,15 +64,15 @@ docker push "$FULL_IMAGE_NAME"
 
 # 4. Deploy with Helm
 # Uses 'helm upgrade --install' to be idempotent.
-# Dynamically sets the image repository and tag to match the image just built.
+# Dynamically sets the image repository, tag, and GSA email.
 echo
 echo "STEP 4: Deploying application with Helm..."
 helm upgrade --install "$HELM_RELEASE_NAME" "$HELM_CHART_PATH" \
   --set image.repository="$REGISTRY_HOSTNAME/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPO/$IMAGE_NAME" \
-  --set image.tag="$IMAGE_TAG"
+  --set image.tag="$IMAGE_TAG" \
+  --set serviceAccount.gcpServiceAccountEmail="$GSA_EMAIL"
 
 echo
 echo "--------------------------------------------------"
 echo "Deployment script finished successfully."
 echo "--------------------------------------------------"
-

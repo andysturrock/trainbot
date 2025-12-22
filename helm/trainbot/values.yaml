@@ -12,6 +12,16 @@ image:
   # The image tag is also set by the 'scripts/deploy.sh' script.
   tag: ""
 
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "trainbot-ksa"
+  # The email of the GCP service account to be used by the k8s service account
+  # This is dynamically set by the 'scripts/deploy.sh' script
+  gcpServiceAccountEmail: "placeholder-gsa-email"
+
 service:
   type: LoadBalancer
   port: 80

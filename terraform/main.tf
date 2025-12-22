@@ -100,6 +100,19 @@ resource "google_project_iam_member" "datastore_user" {
   member  = "serviceAccount:${google_service_account.gke_nodes.email}"
 }
 
+
+resource "google_project_iam_member" "artifact_registry_reader" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_nodes.email}"
+}
+
+resource "google_service_account_iam_member" "workload_identity_user" {
+  service_account_id = google_service_account.gke_nodes.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.gcp_project_id}.svc.id.goog[default/trainbot-ksa]"
+}
+
 resource "google_firestore_database" "database" {
   project     = var.gcp_project_id
   name        = "${var.gcp_project_id}-firestore-db"
@@ -127,6 +140,15 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
   deletion_protection      = false
   enable_autopilot         = true
+
+  workload_identity_config {
+    workload_pool = "${var.gcp_project_id}.svc.id.goog"
+  }
+
+  node_config {
+    service_account = google_service_account.gke_nodes.email
+  }
+
   control_plane_endpoints_config {
     dns_endpoint_config {
       allow_external_traffic = true
