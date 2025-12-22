@@ -146,10 +146,6 @@ resource "google_container_cluster" "primary" {
     workload_pool = "${var.gcp_project_id}.svc.id.goog"
   }
 
-  node_config {
-    service_account = google_service_account.gke_nodes.email
-  }
-
   control_plane_endpoints_config {
     dns_endpoint_config {
       allow_external_traffic = true
