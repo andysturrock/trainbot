@@ -14,6 +14,7 @@ IMAGE_NAME="trainbot"
 IMAGE_TAG="latest"
 ARTIFACT_REGISTRY_REPO="trainbot-repo"
 HELM_RELEASE_NAME="trainbot"
+CLUSTER_NAME="trainbot-cluster"
 GSA_NAME="trainbot-gke-nodes" # Google Service Account name
 
 # Get the absolute path of the script's directory
@@ -62,11 +63,16 @@ echo
 echo "STEP 3: Pushing Docker image to Artifact Registry..."
 docker push "$FULL_IMAGE_NAME"
 
-# 4. Deploy with Helm
+# 4. Configure kubectl
+echo
+echo "STEP 4: Configuring kubectl to connect to the GKE cluster..."
+gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$GCP_REGION" --project "$GCP_PROJECT_ID" --dns-endpoint --quiet
+
+# 5. Deploy with Helm
 # Uses 'helm upgrade --install' to be idempotent.
 # Dynamically sets the image repository, tag, and GSA email.
 echo
-echo "STEP 4: Deploying application with Helm..."
+echo "STEP 5: Deploying application with Helm..."
 helm upgrade --install "$HELM_RELEASE_NAME" "$HELM_CHART_PATH" \
   --set image.repository="$REGISTRY_HOSTNAME/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPO/$IMAGE_NAME" \
   --set image.tag="$IMAGE_TAG" \

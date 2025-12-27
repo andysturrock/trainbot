@@ -83,6 +83,20 @@ resource "google_compute_subnetwork" "gke_subnet" {
   }
 }
 
+resource "google_compute_router" "router" {
+  name    = "trainbot-router"
+  network = google_compute_network.vpc_network.id
+  region  = google_compute_subnetwork.gke_subnet.region
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "trainbot-nat-gateway"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  nat_ip_allocate_option             = "AUTO_ONLY"
+}
+
 resource "google_service_account" "gke_nodes" {
   account_id   = "${var.cluster_name}-gke-nodes"
   display_name = "Service Account for GKE nodes"
@@ -105,6 +119,12 @@ resource "google_project_iam_member" "artifact_registry_reader" {
   project = var.gcp_project_id
   role    = "roles/artifactregistry.reader"
   member  = "serviceAccount:${google_service_account.gke_nodes.email}"
+}
+
+resource "google_project_iam_member" "gce_default_sa_artifact_registry_reader" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 resource "google_service_account_iam_member" "workload_identity_user" {
