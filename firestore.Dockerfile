@@ -1,6 +1,6 @@
 FROM eclipse-temurin:21-jre
 
-COPY zscaler2048_sha256.crt /usr/local/share/ca-certificates/zscaler.crt
+COPY zscaler2048_sha256.crt* /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
 RUN apt-get update && \
