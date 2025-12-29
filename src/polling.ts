@@ -1,30 +1,31 @@
 import { App } from '@slack/bolt';
 import { hasBeenPosted, markAsPosted } from './database';
+import logger from './logger';
 import { getIncidentsForStation } from './national-rail';
 import { getAllUserIds, getUserSettings } from './user-settings';
 
 export function startPolling(app: App, nationalRailApiKey: string, nationalRailApiUrl: string): void {
   poll(app, nationalRailApiKey, nationalRailApiUrl);
   const pollIntervalMs = parseInt(process.env.POLL_INTERVAL_MS!, 10);
-  setInterval(poll, pollIntervalMs, app, nationalRailApiKey, nationalRailApiUrl); 
+  setInterval(poll, pollIntervalMs, app, nationalRailApiKey, nationalRailApiUrl);
 }
 
 async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: string) {
   try {
-    console.log('Polling for incidents...');
-    
+    logger.debug('Polling for incidents...');
+
     // --- Single station polling for a predefined channel ---
     const globalStationCrs = process.env.STATION_CRS;
     const globalSlackChannelId = process.env.SLACK_CHANNEL_ID;
-    
+
     if (globalStationCrs && globalSlackChannelId) {
-      console.log(`Checking global station ${globalStationCrs}...`);
+      logger.debug(`Checking global station ${globalStationCrs}...`);
       const incidents = await getIncidentsForStation(
         globalStationCrs,
         nationalRailApiKey,
         nationalRailApiUrl
       );
-      
+
       if (incidents.length > 0) {
         for (const incident of incidents) {
           if (!await hasBeenPosted(incident.url)) {
@@ -46,13 +47,13 @@ async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: st
                     text: incident.summary,
                   },
                 },
-                  {
-                    type: 'section',
-                    text: {
-                      type: 'mrkdwn',
-                      text: `<${incident.url}|View on National Rail>`,
-                    },
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `<${incident.url}|View on National Rail>`,
                   },
+                },
               ],
             });
             await markAsPosted(incident.url);
@@ -60,10 +61,10 @@ async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: st
         }
       }
     }
-    
+
     // --- Per-user station polling ---
-    const userIds = await getAllUserIds(); 
-    
+    const userIds = await getAllUserIds();
+
     for (const userId of userIds) {
       const userSettings = await getUserSettings(userId);
       if (userSettings) {
@@ -73,7 +74,7 @@ async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: st
             nationalRailApiKey,
             nationalRailApiUrl
           );
-          
+
           if (incidents.length > 0) {
             for (const incident of incidents) {
               if (!await hasBeenPosted(incident.url)) { // Ensure not to re-post if already sent to global channel
@@ -112,6 +113,6 @@ async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: st
       }
     }
   } catch (error) {
-    console.error('Error during polling:', error);
+    logger.error('Error during polling:', error);
   }
 }

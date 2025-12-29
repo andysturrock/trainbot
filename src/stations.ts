@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from './logger';
 
 export interface Station {
   name: string;
@@ -14,15 +15,15 @@ interface FetchedStation {
 
 export async function fetchStations(): Promise<void> {
   try {
-    console.log('Fetching stations...');
+    logger.info('Fetching stations...');
     const response = await axios.get<FetchedStation[]>('https://raw.githubusercontent.com/davwheat/uk-railway-stations/main/stations.json');
     stations = response.data.map(station => ({
       name: station.stationName,
       crs: station.crsCode,
     }));
-    console.log(`Loaded ${stations.length} stations.`);
+    logger.info(`Loaded ${stations.length} stations.`);
   } catch (error) {
-    console.error('!!! Initial station load failed:', error);
+    logger.error('Initial station load failed:', error);
   }
 }
 
