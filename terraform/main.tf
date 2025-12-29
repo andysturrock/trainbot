@@ -2,17 +2,21 @@ terraform {
   backend "gcs" {}
   required_providers {
     google = {
-      source = "hashicorp/google"
-      version = "~> 5.0"
+      source  = "hashicorp/google"
+      version = "~> 7.14.1"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.23.0"
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 7.14.1"
     }
   }
 }
 
 provider "google" {
+  project = var.gcp_project_id
+  region  = var.gcp_region
+}
+provider "google-beta" {
   project = var.gcp_project_id
   region  = var.gcp_region
 }
@@ -33,17 +37,24 @@ resource "google_project_service" "secretmanager" {
 }
 
 resource "google_project_service" "compute" {
-  service                    = "compute.googleapis.com"
-  disable_dependent_services = true
-  disable_on_destroy         = false
+  service            = "compute.googleapis.com"
+  disable_on_destroy = false
 }
 
-provider "kubernetes" {
-  host = "https://${google_container_cluster.primary.control_plane_endpoints_config[0].dns_endpoint_config[0].endpoint}"
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "gke-gcloud-auth-plugin"
-  }
+resource "google_project_service" "artifact_registry" {
+  service            = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_artifact_registry_repository" "docker_repo" {
+  provider      = google-beta
+  location      = var.gcp_region
+  repository_id = "trainbot-repo"
+  description   = "Docker repository for trainbot images"
+  format        = "DOCKER"
+  depends_on = [
+    google_project_service.artifact_registry
+  ]
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -64,6 +75,26 @@ resource "google_compute_subnetwork" "gke_subnet" {
     range_name    = "services"
     ip_cidr_range = "10.0.32.0/22"
   }
+
+  lifecycle {
+    ignore_changes = [
+      secondary_ip_range,
+    ]
+  }
+}
+
+resource "google_compute_router" "router" {
+  name    = "trainbot-router"
+  network = google_compute_network.vpc_network.id
+  region  = google_compute_subnetwork.gke_subnet.region
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "trainbot-nat-gateway"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  nat_ip_allocate_option             = "AUTO_ONLY"
 }
 
 resource "google_service_account" "gke_nodes" {
@@ -83,50 +114,96 @@ resource "google_project_iam_member" "datastore_user" {
   member  = "serviceAccount:${google_service_account.gke_nodes.email}"
 }
 
+
+resource "google_project_iam_member" "artifact_registry_reader" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_nodes.email}"
+}
+
+resource "google_project_iam_member" "gce_default_sa_artifact_registry_reader" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+resource "google_service_account_iam_member" "workload_identity_user" {
+  service_account_id = google_service_account.gke_nodes.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.gcp_project_id}.svc.id.goog[default/trainbot-ksa]"
+}
+
 resource "google_firestore_database" "database" {
-  project     = var.gcp_project_id
-  name        = "${var.gcp_project_id}-firestore-db"
-  location_id = var.gcp_region
-  type        = "FIRESTORE_NATIVE"
+  project         = var.gcp_project_id
+  name            = "${var.gcp_project_id}-firestore-db"
+  location_id     = var.gcp_region
+  type            = "FIRESTORE_NATIVE"
+  deletion_policy = "DELETE"
+}
+
+data "google_kms_key_ring" "gke_keyring" {
+  project  = var.gcp_project_id
+  location = var.gcp_region
+  name     = "${var.gcp_project_id}-default-cmek-key-ring"
+}
+
+data "google_kms_crypto_key" "gke_key" {
+  name     = "default-cmek-key"
+  key_ring = data.google_kms_key_ring.gke_keyring.id
 }
 
 resource "google_container_cluster" "primary" {
-  name                     = "${var.cluster_name}-cluster"
-  location                 = var.gcp_region
-  network                  = google_compute_network.vpc_network.name
-  subnetwork               = google_compute_subnetwork.gke_subnet.name
-  initial_node_count       = 1
-  remove_default_node_pool = true
+  provider            = google-beta
+  name                = "${var.cluster_name}-cluster"
+  location            = var.gcp_region
+  network             = google_compute_network.vpc_network.name
+  subnetwork          = google_compute_subnetwork.gke_subnet.name
+  initial_node_count  = 1
+  deletion_protection = false
+  enable_autopilot    = true
 
-  private_cluster_config {
-    enable_private_nodes    = true
-    enable_private_endpoint = true
-
-    master_ipv4_cidr_block = "172.16.0.0/28"
+  workload_identity_config {
+    workload_pool = "${var.gcp_project_id}.svc.id.goog"
   }
 
-  master_authorized_networks_config {
-    cidr_blocks {
-      cidr_block   = "0.0.0.0/0"
-      display_name = "Allow all"
+  control_plane_endpoints_config {
+    dns_endpoint_config {
+      allow_external_traffic = true
+    }
+  }
+  cluster_autoscaling {
+    auto_provisioning_defaults {
+      boot_disk_kms_key = data.google_kms_crypto_key.gke_key.id
     }
   }
 
-  ip_allocation_policy {
-    cluster_secondary_range_name  = google_compute_subnetwork.gke_subnet.secondary_ip_range[0].range_name
-    services_secondary_range_name = google_compute_subnetwork.gke_subnet.secondary_ip_range[1].range_name
+  master_authorized_networks_config {}
+  private_cluster_config {
+    enable_private_nodes    = true
+    enable_private_endpoint = true
   }
+  database_encryption {
+    state    = "ENCRYPTED"
+    key_name = data.google_kms_crypto_key.gke_key.id
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.gke_key_user,
+    google_kms_crypto_key_iam_member.compute_system_key_user
+  ]
 }
 
-resource "google_container_node_pool" "primary_nodes" {
-  name       = "default-pool"
-  cluster    = google_container_cluster.primary.id
-  node_count = 1
-  node_config {
-    machine_type    = "e2-medium"
-    service_account = google_service_account.gke_nodes.email
-    oauth_scopes    = ["https://www.googleapis.com/auth/cloud-platform"]
-  }
+data "google_project" "project" {}
+
+resource "google_kms_crypto_key_iam_member" "gke_key_user" {
+  crypto_key_id = data.google_kms_crypto_key.gke_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
+}
+
+resource "google_kms_crypto_key_iam_member" "compute_system_key_user" {
+  crypto_key_id = data.google_kms_crypto_key.gke_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
 }
 
 resource "google_compute_firewall" "gke_health_checks" {
@@ -156,68 +233,3 @@ resource "google_secret_manager_secret_version" "slack_secrets_version" {
   secret_data = jsonencode(var.secrets)
 }
 
-resource "kubernetes_deployment" "trainbot" {
-  metadata {
-    name = "trainbot"
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "trainbot"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "trainbot"
-        }
-      }
-
-      spec {
-        container {
-          image = "gcr.io/${var.gcp_project_id}/${var.cluster_name}:latest"
-          name  = "trainbot"
-
-          env {
-            name  = "NODE_ENV"
-            value = "production"
-          }
-
-          env {
-            name  = "GCP_PROJECT_ID"
-            value = var.gcp_project_id
-          }
-
-          env {
-            name  = "SECRET_NAME"
-            value = var.secret_name
-          }
-
-          port {
-            container_port = 3000
-          }
-        }
-      }
-    }
-  }
-}
-
-resource "kubernetes_service" "trainbot" {
-  metadata {
-    name = "trainbot"
-  }
-  spec {
-    selector = {
-      app = kubernetes_deployment.trainbot.spec.0.template.0.metadata.0.labels.app
-    }
-    port {
-      port        = 80
-      target_port = 3000
-    }
-    type = "LoadBalancer"
-  }
-}
