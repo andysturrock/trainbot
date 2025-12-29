@@ -17,7 +17,9 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
 } else {
   // Connect to the live Firestore service
   db = new Firestore();
-  console.log('Connecting to live Firestore service.');
+  if (process.env.NODE_ENV !== 'test') {
+    console.log('Connecting to live Firestore service.');
+  }
 }
 
 export { db };

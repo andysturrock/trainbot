@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
-import { NationalRailIncident } from './types';
 import { getStations } from './stations';
+import { NationalRailIncident } from './types';
 
 export async function getIncidentsForStation(stationCrs: string, apiKey: string, nationalRailApiUrl: string): Promise<NationalRailIncident[]> {
   try {
@@ -30,7 +30,7 @@ export async function getIncidentsForStation(stationCrs: string, apiKey: string,
     const parsedData = parser.parse(responseData);
 
     const allIncidents: NationalRailIncident[] = [];
-    const tocs = parsedData.NSI.TOC;
+    const tocs = parsedData.NSI.TOC ? (Array.isArray(parsedData.NSI.TOC) ? parsedData.NSI.TOC : [parsedData.NSI.TOC]) : [];
 
     for (const toc of tocs) {
       if (toc.Status !== 'Good service') {
