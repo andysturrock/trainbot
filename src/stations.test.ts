@@ -2,16 +2,22 @@
 import axios from 'axios';
 import { fetchStations, filterStations, getStations } from './stations';
 
+import logger from './logger';
+
 jest.mock('axios');
+jest.mock('./logger', () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+}));
+
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedLogger = logger as jest.Mocked<typeof logger>;
 
 describe('stations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset the internal stations array if possible or ensure tests are isolated
     // Since 'stations' is a module-level variable, we might need to rely on fetchStations to reset it
-    jest.spyOn(console, 'log').mockImplementation(() => { });
-    jest.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -36,16 +42,11 @@ describe('stations', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
       mockedAxios.get.mockRejectedValue(new Error('Network error'));
 
       await fetchStations();
 
-      // Should probably still be whatever it was before, or empty if this is first run
-      // In this test suite order, it might retain previous values if not reset.
-      // However, the function catches the error and logs it.
-      expect(consoleSpy).toHaveBeenCalledWith('!!! Initial station load failed:', expect.any(Error));
-      consoleSpy.mockRestore();
+      expect(mockedLogger.error).toHaveBeenCalledWith('Initial station load failed:', expect.any(Error));
     });
   });
 
@@ -59,9 +60,7 @@ describe('stations', () => {
       ];
       mockedAxios.get.mockResolvedValue({ data: mockData } as any);
 
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
       await fetchStations();
-      logSpy.mockRestore();
     });
 
     it('should filter by name case-insensitive', () => {
