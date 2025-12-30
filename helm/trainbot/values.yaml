@@ -8,7 +8,7 @@ image:
   # The image repository is dynamically set by the 'scripts/deploy.sh' script
   # during 'helm upgrade'. Example: europe-west2-docker.pkg.dev/your-gcp-project/trainbot-repo/trainbot
   repository: placeholder-repository
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # The image tag is also set by the 'scripts/deploy.sh' script.
   tag: ""
 
@@ -23,14 +23,27 @@ serviceAccount:
   gcpServiceAccountEmail: "placeholder-gsa-email"
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: 80
   targetPort: 3000
 
+# Ingress configuration
+ingress:
+  enabled: true
+  domain: "trainbot.slackapps.atombank.co.uk"
+  staticIpName: "trainbot-ingress-ip"
+
 env:
-  NODE_ENV: "production"
-  GCP_PROJECT_ID: "prj-i-solid-ocelot-cf27"
-  SECRET_NAME: "trainbot-slack-secrets"
+  NODE_ENV: ""
+  GCP_PROJECT_ID: ""
+  FIRESTORE_DATABASE_ID: ""
+  SECRET_NAME: ""
+  NATIONAL_RAIL_API_URL: ""
+  SLACK_TEAM_ID: ""
+  STATION_CRS: ""
+  SLACK_CHANNEL_ID: ""
+  POLL_INTERVAL_MS: ""
+  LOG_LEVEL: ""
 
 resources:
   requests:

@@ -21,6 +21,18 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.targetPort }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.targetPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.targetPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
         env:
         - name: NODE_ENV
           value: {{ .Values.env.NODE_ENV | quote }}
@@ -28,6 +40,20 @@ spec:
           value: {{ .Values.env.GCP_PROJECT_ID | quote }}
         - name: SECRET_NAME
           value: {{ .Values.env.SECRET_NAME | quote }}
+        - name: FIRESTORE_DATABASE_ID
+          value: {{ .Values.env.FIRESTORE_DATABASE_ID | quote }}
+        - name: NATIONAL_RAIL_API_URL
+          value: {{ .Values.env.NATIONAL_RAIL_API_URL | quote }}
+        - name: SLACK_TEAM_ID
+          value: {{ .Values.env.SLACK_TEAM_ID | quote }}
+        - name: STATION_CRS
+          value: {{ .Values.env.STATION_CRS | quote }}
+        - name: SLACK_CHANNEL_ID
+          value: {{ .Values.env.SLACK_CHANNEL_ID | quote }}
+        - name: POLL_INTERVAL_MS
+          value: {{ .Values.env.POLL_INTERVAL_MS | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.env.LOG_LEVEL | quote }}
         resources:
           requests:
             cpu: {{ .Values.resources.requests.cpu }}

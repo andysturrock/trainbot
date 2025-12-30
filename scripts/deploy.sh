@@ -76,7 +76,17 @@ echo "STEP 5: Deploying application with Helm..."
 helm upgrade --install "$HELM_RELEASE_NAME" "$HELM_CHART_PATH" \
   --set image.repository="$REGISTRY_HOSTNAME/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPO/$IMAGE_NAME" \
   --set image.tag="$IMAGE_TAG" \
-  --set serviceAccount.gcpServiceAccountEmail="$GSA_EMAIL"
+  --set serviceAccount.gcpServiceAccountEmail="$GSA_EMAIL" \
+  --set env.NODE_ENV="${NODE_ENV:-production}" \
+  --set env.SECRET_NAME="${SECRET_NAME:-trainbot-slack-secrets}" \
+  --set env.LOG_LEVEL="${LOG_LEVEL:-info}" \
+  --set env.GCP_PROJECT_ID="$GCP_PROJECT_ID" \
+  --set env.FIRESTORE_DATABASE_ID="${GCP_PROJECT_ID}-firestore-db" \
+  --set env.NATIONAL_RAIL_API_URL="$NATIONAL_RAIL_API_URL" \
+  --set env.SLACK_TEAM_ID="$SLACK_TEAM_ID" \
+  --set env.STATION_CRS="$STATION_CRS" \
+  --set env.SLACK_CHANNEL_ID="$SLACK_CHANNEL_ID" \
+  --set env.POLL_INTERVAL_MS="$POLL_INTERVAL_MS"
 
 echo
 echo "--------------------------------------------------"
