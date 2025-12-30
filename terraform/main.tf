@@ -233,3 +233,10 @@ resource "google_secret_manager_secret_version" "slack_secrets_version" {
   secret_data = jsonencode(var.secrets)
 }
 
+resource "google_compute_global_address" "ingress_ip" {
+  name = "trainbot-ingress-ip"
+}
+
+output "ingress_ip_address" {
+  value = google_compute_global_address.ingress_ip.address
+}
