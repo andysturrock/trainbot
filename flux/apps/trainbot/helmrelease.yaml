@@ -15,7 +15,7 @@ spec:
       interval: 1m
   values:
     image:
-      tag: "prod-0" # {"$imagepolicy": "default:trainbot:tag"}
+      tag: "prod-0" # {"$imagepolicy": "default:trainbot"}
       pullPolicy: Always
     env:
       NODE_ENV: "production"
