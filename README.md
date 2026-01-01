@@ -142,6 +142,13 @@ To deploy the application to GCP, you will need to have the gcloud CLI installed
     cp terraform/terraform.tfvars.example terraform/terraform.tfvars
     ```
     Then, fill in the required values in the `terraform/terraform.tfvars` file.
+    
+    > **Note:** For FluxCD bootstrapping, you need to provide your GitHub user/owner and a Personal Access Token (PAT).
+    > You can set `github_token` in `terraform.tfvars` or pass it as an environment variable `TF_VAR_github_token` (recommended for secrets).
+    >
+    > To generate a token:
+    > - **Using `gh` CLI:** Run `gh auth token` to get your current session token.
+    > - **Using GitHub website:** Go to Settings -> Developer settings -> Personal access tokens -> Tokens (classic). Generate a new token with `repo` scope.
 
 8.  **Initialize and Apply the Terraform configuration:**
     Navigate to the terraform directory. When you initialize Terraform, you must pass the name of the GCS bucket you created.
