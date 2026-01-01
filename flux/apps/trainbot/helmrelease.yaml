@@ -18,7 +18,14 @@ spec:
       tag: "434ee751a9247d6c4ff9569c6b3cd37508d61c4c" # This will be updated by CI/CD
       pullPolicy: Always
     env:
+      NODE_ENV: "production"
       SECRET_NAME: "trainbot-slack-secrets"
+      NATIONAL_RAIL_API_URL: "https://api1.raildata.org.uk/1010-knowlegebase-national-service-indicator-xml-feed2_0/4.0/serviceindicators.xml"
+      SLACK_TEAM_ID: "REDACTED_TEAM_ID"
+      STATION_CRS: "LST"
+      SLACK_CHANNEL_ID: "REDACTED_CHANNEL_ID"
+      LOG_LEVEL: "info"
+      POLL_INTERVAL_MS: "300000"
     resources:
       requests:
         cpu: 100m
@@ -35,6 +42,10 @@ spec:
       name: flux-vars
       valuesKey: GCP_PROJECT_ID
       targetPath: env.GCP_PROJECT_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: FIRESTORE_DATABASE_ID
+      targetPath: env.FIRESTORE_DATABASE_ID
     - kind: ConfigMap
       name: flux-vars
       valuesKey: GCP_SERVICE_ACCOUNT_EMAIL

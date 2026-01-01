@@ -287,5 +287,6 @@ resource "kubernetes_config_map" "flux_vars" {
   data = {
     GCP_PROJECT_ID            = var.gcp_project_id
     GCP_SERVICE_ACCOUNT_EMAIL = google_service_account.gke_nodes.email
+    FIRESTORE_DATABASE_ID     = google_firestore_database.database.name
   }
 }
