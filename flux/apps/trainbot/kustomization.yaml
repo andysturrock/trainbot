@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - helmrelease.yaml
   - image-automation.yaml
-namespace: default
+  - update-automation.yaml
