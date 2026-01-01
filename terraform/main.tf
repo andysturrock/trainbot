@@ -36,14 +36,14 @@ provider "google-beta" {
 data "google_client_config" "default" {}
 
 provider "kubernetes" {
-  host                   = "https://${google_container_cluster.primary.control_plane_endpoints_config[0].dns_endpoint_config[0].endpoint}"
-  token                  = data.google_client_config.default.access_token
+  host  = "https://${google_container_cluster.primary.control_plane_endpoints_config[0].dns_endpoint_config[0].endpoint}"
+  token = data.google_client_config.default.access_token
 }
 
 provider "flux" {
   kubernetes = {
-    host                   = "https://${google_container_cluster.primary.control_plane_endpoints_config[0].dns_endpoint_config[0].endpoint}"
-    token                  = data.google_client_config.default.access_token
+    host  = "https://${google_container_cluster.primary.control_plane_endpoints_config[0].dns_endpoint_config[0].endpoint}"
+    token = data.google_client_config.default.access_token
   }
   git = {
     url = "https://github.com/${var.github_owner}/${var.github_repository}.git"

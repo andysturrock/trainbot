@@ -11,7 +11,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   workload_identity_pool_provider_id = "github-provider"
   display_name                       = "GitHub Actions Provider"
   description                        = "OIDC identity provider for GitHub Actions"
-  
+
   attribute_mapping = {
     "google.subject"             = "assertion.sub"
     "attribute.actor"            = "assertion.actor"
@@ -47,7 +47,7 @@ resource "google_storage_bucket_iam_member" "tf_state_access" {
   # Since the bucket name is in the backend config (not accessible here), 
   # we will skip this specific binding here and advise user to grant it or import the bucket.
   # Instead, we grant project-level roles often needed for CI/CD.
-  count  = 0 
+  count  = 0
   bucket = "placeholder" # We don't know the bucket name in code
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.github_actions.email}"
