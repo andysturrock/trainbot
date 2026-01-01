@@ -16,9 +16,9 @@ spec:
       author:
         email: fluxcdbot@users.noreply.github.com
         name: fluxcdbot
-      messageTemplate: '{{range .Updated.Images}}{{println .}}{{end}}'
+      messageTemplate: 'Update images'
     push:
       branch: main
   update:
-    path: ./
+    path: ./flux
     strategy: Setters
