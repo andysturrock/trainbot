@@ -5,6 +5,7 @@
 replicaCount: 1
 
 image:
+  projectId: ""
   # The image repository is dynamically set by the 'scripts/deploy.sh' script
   # during 'helm upgrade'. Example: europe-west2-docker.pkg.dev/your-gcp-project/trainbot-repo/trainbot
   repository: placeholder-repository

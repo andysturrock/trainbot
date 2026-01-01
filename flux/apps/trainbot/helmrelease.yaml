@@ -15,11 +15,9 @@ spec:
       interval: 1m
   values:
     image:
-      repository: europe-west2-docker.pkg.dev/${GCP_PROJECT_ID}/trainbot-repo/trainbot
       tag: "be4fa105a0ac282be11fcc41cfd686a67fcb031a" # This will be updated by CI/CD
       pullPolicy: Always
     env:
-      GCP_PROJECT_ID: "${GCP_PROJECT_ID}"
       SECRET_NAME: "trainbot-slack-secrets"
     resources:
       requests:
@@ -28,3 +26,12 @@ spec:
       limits:
         cpu: 200m
         memory: 256Mi
+  valuesFrom:
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: GCP_PROJECT_ID
+      targetPath: image.projectId
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: GCP_PROJECT_ID
+      targetPath: env.GCP_PROJECT_ID

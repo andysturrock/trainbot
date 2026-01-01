@@ -22,10 +22,6 @@ spec:
   interval: 10m0s
   path: ./flux/clusters/production
   prune: true
-  postBuild:
-    substituteFrom:
-      - kind: ConfigMap
-        name: flux-vars
   sourceRef:
     kind: GitRepository
     name: flux-system
