@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: europe-west2-docker.pkg.dev/${GCP_PROJECT_ID}/trainbot-repo/trainbot
-      tag: "d8e064afba64ea251d707e33ef66e5c9e4c971f5" # This will be updated by CI/CD
+      tag: "38e629657084893b5fef271dbb021326f8fb734f" # This will be updated by CI/CD
       pullPolicy: Always
     resources:
       requests:
