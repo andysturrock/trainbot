@@ -15,7 +15,7 @@ spec:
       interval: 1m
   values:
     image:
-      tag: "be4fa105a0ac282be11fcc41cfd686a67fcb031a" # This will be updated by CI/CD
+      tag: "72e30b3b921b3541545421ecbb810aae9aa6cb1c" # This will be updated by CI/CD
       pullPolicy: Always
     env:
       SECRET_NAME: "trainbot-slack-secrets"
