@@ -1,0 +1,98 @@
+name: "Application CI/CD"
+
+on:
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - 'terraform/**'
+      - '.github/workflows/terraform.yml'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'terraform/**'
+      - '.github/workflows/terraform.yml'
+      - 'README.md'
+
+jobs:
+  lint-and-test:
+    name: "Lint & Test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN_TEST }}
+          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET_TEST }}
+          NATIONAL_RAIL_API_KEY: ${{ secrets.NATIONAL_RAIL_API_KEY_TEST }}
+
+  build-and-push:
+    name: "Build & Push"
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+    
+    env:
+      IMAGE_NAME: europe-west2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/trainbot-repo/trainbot
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Docker config
+        run: gcloud auth configure-docker europe-west2-docker.pkg.dev
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+
+      - name: Update Flux Manifests
+        run: |
+          # Install yq
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          
+          # Update HelmRelease image tag
+          yq -i ".spec.values.image.tag = \"${{ github.sha }}\"" flux/apps/trainbot/helmrelease.yaml
+          
+          # Commit and push changes
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add flux/apps/trainbot/helmrelease.yaml
+          
+          # Only commit if there are changes
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "deploy: update image tag to ${{ github.sha }}"
+            git push
+          fi

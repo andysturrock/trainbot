@@ -9,6 +9,18 @@ terraform {
       source  = "hashicorp/google-beta"
       version = "~> 7.14.1"
     }
+    flux = {
+      source  = "fluxcd/flux"
+      version = "~> 1.2"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
 }
 
@@ -19,6 +31,34 @@ provider "google" {
 provider "google-beta" {
   project = var.gcp_project_id
   region  = var.gcp_region
+}
+
+data "google_client_config" "default" {}
+
+provider "kubernetes" {
+  host                   = "https://${google_container_cluster.primary.endpoint}"
+  token                  = data.google_client_config.default.access_token
+  cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+}
+
+provider "flux" {
+  kubernetes = {
+    host                   = "https://${google_container_cluster.primary.endpoint}"
+    token                  = data.google_client_config.default.access_token
+    cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+  }
+  git = {
+    url = "https://github.com/${var.github_owner}/${var.github_repository}.git"
+    http = {
+      username = "git" # This can be anything for PAT authentication
+      password = var.github_token
+    }
+  }
+}
+
+provider "github" {
+  owner = var.github_owner
+  token = var.github_token
 }
 
 resource "google_project_service" "firestore" {

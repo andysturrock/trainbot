@@ -26,3 +26,20 @@ variable "secrets" {
   type        = map(string)
   sensitive   = true
 }
+
+variable "github_owner" {
+  description = "The GitHub owner (user or organization)."
+  type        = string
+}
+
+variable "github_token" {
+  description = "The GitHub token for Flux bootstrapping."
+  type        = string
+  sensitive   = true
+}
+
+variable "github_repository" {
+  description = "The GitHub repository name."
+  type        = string
+  default     = "trainbot"
+}
