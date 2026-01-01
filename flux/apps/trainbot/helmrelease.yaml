@@ -18,6 +18,9 @@ spec:
       repository: europe-west2-docker.pkg.dev/${GCP_PROJECT_ID}/trainbot-repo/trainbot
       tag: "38e629657084893b5fef271dbb021326f8fb734f" # This will be updated by CI/CD
       pullPolicy: Always
+    env:
+      GCP_PROJECT_ID: "${GCP_PROJECT_ID}"
+      SECRET_NAME: "trainbot-slack-secrets"
     resources:
       requests:
         cpu: 100m
