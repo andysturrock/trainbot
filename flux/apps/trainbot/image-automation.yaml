@@ -2,7 +2,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
   name: trainbot
-  namespace: default
+  namespace: flux-system
 spec:
   image: europe-west2-docker.pkg.dev/slack-api-392013/trainbot-repo/trainbot
   interval: 1m0s
@@ -12,7 +12,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
   name: trainbot
-  namespace: default
+  namespace: flux-system
 spec:
   imageRepositoryRef:
     name: trainbot
