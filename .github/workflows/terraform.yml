@@ -55,7 +55,9 @@ jobs:
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
-            -var="secrets=${{ secrets.APP_SECRETS_JSON }}"
+            -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
+            -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
+            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}"
         continue-on-error: true
 
       - name: Update PR
@@ -99,4 +101,6 @@ jobs:
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
-            -var="secrets=${{ secrets.APP_SECRETS_JSON }}"
+            -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
+            -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
+            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}"

@@ -33,9 +33,19 @@ variable "github_owner" {
 }
 
 variable "github_token" {
-  description = "The GitHub token for Flux bootstrapping."
+  description = "GitHub Personal Access Token for Flux"
   type        = string
   sensitive   = true
+}
+
+variable "slack_team_id" {
+  description = "Slack Team ID"
+  type        = string
+}
+
+variable "slack_channel_id" {
+  description = "Slack Channel ID"
+  type        = string
 }
 
 variable "github_repository" {
