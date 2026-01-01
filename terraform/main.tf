@@ -278,3 +278,13 @@ resource "google_compute_global_address" "ingress_ip" {
 output "ingress_ip_address" {
   value = google_compute_global_address.ingress_ip.address
 }
+resource "kubernetes_config_map" "flux_vars" {
+  metadata {
+    name      = "flux-vars"
+    namespace = "flux-system"
+  }
+
+  data = {
+    GCP_PROJECT_ID = var.gcp_project_id
+  }
+}
