@@ -16,7 +16,7 @@ spec:
   values:
     image:
       # {"$imagepolicy": "default:trainbot:tag"}
-      tag: "prod-123" # This will be updated by Flux Image Automation
+      tag: "prod-0" # This will be updated by Flux Image Automation
       pullPolicy: Always
     env:
       NODE_ENV: "production"
