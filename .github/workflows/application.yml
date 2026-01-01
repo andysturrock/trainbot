@@ -74,26 +74,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:prod-${{ github.run_number }}
             ${{ env.IMAGE_NAME }}:latest
-
-      - name: Update Flux Manifests
-        run: |
-          # Install yq
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-          
-          # Update HelmRelease image tag
-          yq -i ".spec.values.image.tag = \"${{ github.sha }}\"" flux/apps/trainbot/helmrelease.yaml
-          
-          # Commit and push changes
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add flux/apps/trainbot/helmrelease.yaml
-          
-          # Only commit if there are changes
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "deploy: update image tag to ${{ github.sha }}"
-            git push
-          fi

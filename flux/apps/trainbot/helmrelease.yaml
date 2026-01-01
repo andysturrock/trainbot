@@ -15,6 +15,7 @@ spec:
       interval: 1m
   values:
     image:
+      # {"$imagepolicy": "default:trainbot:tag"}
       tag: "b7d4cf275ea01ef5b60e062eaa070bba64078db9" # This will be updated by CI/CD
       pullPolicy: Always
     env:
