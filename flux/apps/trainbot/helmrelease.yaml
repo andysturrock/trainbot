@@ -35,3 +35,7 @@ spec:
       name: flux-vars
       valuesKey: GCP_PROJECT_ID
       targetPath: env.GCP_PROJECT_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: GCP_SERVICE_ACCOUNT_EMAIL
+      targetPath: serviceAccount.gcpServiceAccountEmail
