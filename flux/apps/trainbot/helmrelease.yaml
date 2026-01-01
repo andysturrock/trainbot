@@ -15,14 +15,10 @@ spec:
       interval: 1m
   values:
     image:
-      tag: "prod-0" # {"$imagepolicy": "default:trainbot"}
+      tag: "prod-0" # {"$imagepolicy": "default:trainbot:tag"}
       pullPolicy: Always
     env:
       NODE_ENV: "production"
-      NATIONAL_RAIL_API_URL: "https://api1.raildata.org.uk/1010-knowlegebase-national-service-indicator-xml-feed2_0/4.0/serviceindicators.xml"
-      STATION_CRS: "LST"
-      LOG_LEVEL: "info"
-      POLL_INTERVAL_MS: "300000"
     resources:
       requests:
         cpu: 100m
@@ -47,3 +43,27 @@ spec:
       name: flux-vars
       valuesKey: GCP_SERVICE_ACCOUNT_EMAIL
       targetPath: serviceAccount.gcpServiceAccountEmail
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: STATION_CRS
+      targetPath: env.STATION_CRS
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: NATIONAL_RAIL_API_URL
+      targetPath: env.NATIONAL_RAIL_API_URL
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: LOG_LEVEL
+      targetPath: env.LOG_LEVEL
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: POLL_INTERVAL_MS
+      targetPath: env.POLL_INTERVAL_MS
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SLACK_TEAM_ID
+      targetPath: env.SLACK_TEAM_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SLACK_CHANNEL_ID
+      targetPath: env.SLACK_CHANNEL_ID
