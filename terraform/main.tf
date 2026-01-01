@@ -281,7 +281,7 @@ output "ingress_ip_address" {
 resource "kubernetes_config_map" "flux_vars" {
   metadata {
     name      = "flux-vars"
-    namespace = "flux-system"
+    namespace = "default"
   }
 
   data = {
