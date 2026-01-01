@@ -15,8 +15,7 @@ spec:
       interval: 1m
   values:
     image:
-      # {"$imagepolicy": "default:trainbot:tag"}
-      tag: "prod-0" # This will be updated by Flux Image Automation
+      tag: "prod-0" # {"$imagepolicy": "default:trainbot"}
       pullPolicy: Always
     env:
       NODE_ENV: "production"
