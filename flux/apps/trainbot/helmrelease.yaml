@@ -15,7 +15,7 @@ spec:
       interval: 1m
   values:
     image:
-      tag: europe-west2-docker.pkg.dev/slack-api-392013/trainbot-repo/trainbot:prod-281 # {"$imagepolicy": "flux-system:trainbot"}
+      tag: europe-west2-docker.pkg.dev/slack-api-392013/trainbot-repo/trainbot:prod-282 # {"$imagepolicy": "flux-system:trainbot"}
       pullPolicy: Always
     env:
       NODE_ENV: "production"
