@@ -57,7 +57,8 @@ jobs:
             -var="github_repository=${{ github.event.repository.name }}" \
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
             -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
-            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}"
+            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
+            -var="station_crs=${{ vars.STATION_CRS }}"
         continue-on-error: true
 
       - name: Update PR
@@ -103,4 +104,5 @@ jobs:
             -var="github_repository=${{ github.event.repository.name }}" \
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
             -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
-            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}"
+            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
+            -var="station_crs=${{ vars.STATION_CRS }}"
