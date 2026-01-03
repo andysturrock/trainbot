@@ -1,33 +1,31 @@
 import { App } from '@slack/bolt';
+import { getConfig } from './config';
 import { clearGoodServicePosted, hasBeenPosted, hasGoodServiceBeenPosted, markAsPosted, markGoodServiceAsPosted } from './database';
 import logger from './logger';
 import { getIncidentsForStation } from './national-rail';
 import { NationalRailIncident } from './types';
 import { getAllUserIds, getUserSettings } from './user-settings';
 
-export function startPolling(app: App, nationalRailApiKey: string, nationalRailApiUrl: string): void {
-  poll(app, nationalRailApiKey, nationalRailApiUrl);
-  const pollIntervalMs = parseInt(process.env.POLL_INTERVAL_MS!, 10);
-  setInterval(poll, pollIntervalMs, app, nationalRailApiKey, nationalRailApiUrl);
+export function startPolling(app: App, nationalRailApiKey: string): void {
+  const config = getConfig();
+  poll(app, nationalRailApiKey);
+  setInterval(poll, config.pollIntervalMs, app, nationalRailApiKey);
 }
 
-async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: string) {
-  if (!nationalRailApiUrl) {
-    logger.error('NATIONAL_RAIL_API_URL is missing from environment variables.');
-    return;
-  }
+async function poll(app: App, nationalRailApiKey: string) {
+  const config = getConfig();
   try {
     logger.debug('Polling for incidents...');
 
     // --- Single station polling for a predefined channel ---
-    const globalStationCrs = process.env.STATION_CRS;
-    const globalSlackChannelId = process.env.SLACK_CHANNEL_ID;
+    const globalStationCrs = config.stationCrs;
+    const globalSlackChannelId = config.slackChannelId;
 
     if (globalStationCrs && globalSlackChannelId) {
       const incidents = await getIncidentsForStation(
         globalStationCrs,
         nationalRailApiKey,
-        nationalRailApiUrl
+        config.nationalRailApiUrl
       );
       await processStationStatus(app, globalSlackChannelId, globalStationCrs, incidents);
     }
@@ -42,7 +40,7 @@ async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: st
           const incidents = await getIncidentsForStation(
             stationCrs,
             nationalRailApiKey,
-            nationalRailApiUrl
+            config.nationalRailApiUrl
           );
           await processStationStatus(app, userId, stationCrs, incidents);
         }
