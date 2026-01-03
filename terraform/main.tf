@@ -294,5 +294,6 @@ resource "kubernetes_config_map" "flux_vars" {
     "NATIONAL_RAIL_API_URL"     = var.rail_api_url
     "POLL_INTERVAL_MS"          = var.poll_interval_ms
     "LOG_LEVEL"                 = var.log_level
+    "SECRET_NAME"               = var.secret_name
   }
 }

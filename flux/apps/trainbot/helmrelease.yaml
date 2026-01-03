@@ -15,7 +15,7 @@ spec:
       interval: 1m
   values:
     image:
-      tag: prod-1176 # {"$imagepolicy": "flux-system:trainbot:tag"}
+      tag: prod-1178 # {"$imagepolicy": "flux-system:trainbot:tag"}
       pullPolicy: Always
     env:
       NODE_ENV: "production"
@@ -67,3 +67,7 @@ spec:
       name: flux-vars
       valuesKey: SLACK_CHANNEL_ID
       targetPath: env.SLACK_CHANNEL_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SECRET_NAME
+      targetPath: env.SECRET_NAME
