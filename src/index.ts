@@ -1,5 +1,6 @@
 import { App, BlockAction, ExpressReceiver } from '@slack/bolt';
 import * as dotenv from 'dotenv';
+import { getConfig } from './config';
 import logger from './logger';
 import { startPolling } from './polling';
 import { getSecrets } from './secrets';
@@ -7,12 +8,13 @@ import { fetchStations, filterStations } from './stations';
 import { getUserSettings, saveUserSettings } from './user-settings';
 
 dotenv.config();
+const config = getConfig();
 
 (async () => {
   const secrets = await getSecrets();
 
   // Debug logging for Slack configuration
-  logger.info(`Slack configuration - Team ID: ${process.env.SLACK_TEAM_ID}, Channel ID: ${process.env.SLACK_CHANNEL_ID}, global station CRS: ${process.env.STATION_CRS}`);
+  logger.info(`Slack configuration - Team ID: ${config.slackTeamId}, Channel ID: ${config.slackChannelId}, global station CRS: ${config.stationCrs}`);
 
   const receiver = new ExpressReceiver({
     signingSecret: secrets.slackSigningSecret,
@@ -203,10 +205,9 @@ dotenv.config();
   });
 
   await fetchStations();
-  const port = process.env.PORT || 3000;
-  await app.start(port);
-  logger.info(`⚡️ Bolt app is running on port ${port}!`);
-  startPolling(app, secrets.nationalRailApiKey, process.env.NATIONAL_RAIL_API_URL!);
+  await app.start(config.port);
+  logger.info(`⚡️ Bolt app is running on port ${config.port}!`);
+  startPolling(app, secrets.nationalRailApiKey);
 })();
 
 

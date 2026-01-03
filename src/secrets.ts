@@ -1,4 +1,5 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+import { getConfig } from './config';
 import logger from './logger';
 
 interface AppSecrets {
@@ -8,11 +9,12 @@ interface AppSecrets {
 }
 
 export async function getSecrets(): Promise<AppSecrets> {
+  const config = getConfig();
   const secrets: Partial<AppSecrets> = {};
 
-  if (process.env.NODE_ENV === 'production') {
+  if (config.nodeEnv === 'production') {
     const client = new SecretManagerServiceClient();
-    const name = `projects/${process.env.GCP_PROJECT_ID}/secrets/${process.env.SECRET_NAME}/versions/latest`;
+    const name = `projects/${config.gcpProjectId}/secrets/${config.secretName}/versions/latest`;
 
     try {
       const [version] = await client.accessSecretVersion({ name });
