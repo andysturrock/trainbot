@@ -15,7 +15,7 @@ spec:
       interval: 1m
   values:
     image:
-      tag: prod-1214 # {"$imagepolicy": "flux-system:trainbot:tag"}
+      tag: prod-1215 # {"$imagepolicy": "flux-system:trainbot:tag"}
       pullPolicy: Always
     env:
       NODE_ENV: "production"
