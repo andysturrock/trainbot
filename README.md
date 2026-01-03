@@ -161,6 +161,9 @@ To deploy the application to GCP, you will need to have the gcloud CLI installed
     ```
     This will create the GKE cluster, the Secret Manager secret, the Firestore database, and all the other necessary resources.
 
+    > [!IMPORTANT]
+    > **Bootstrap Permissions**: The identity (user or service account) running the initial `terraform apply` must have high-level permissions on the GCP project (e.g., `roles/owner` or `roles/editor` + `roles/resourcemanager.projectIamAdmin`) to enable APIs and manage IAM policies. Subsequent automated runs via GitHub Actions use a dedicated service account with scoped permissions.
+
 9.  **Build and push the Docker image:**
     First, configure Docker to use the gcloud CLI for authentication:
     ```bash
