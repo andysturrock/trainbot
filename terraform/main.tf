@@ -297,3 +297,13 @@ resource "kubernetes_config_map" "flux_vars" {
     SECRET_NAME               = var.secret_name
   }
 }
+
+resource "google_logging_project_exclusion" "gke_platform_noise" {
+  name        = "gke-platform-noise"
+  description = "Exclude internal GKE platform noise (ingress probes, fluentbit, and anonymous image pulls)"
+  filter      = <<EOT
+    (resource.type="gce_backend_service" AND textPayload:"k8s-ingress-svc-acct-permission-check-probe") OR
+    (resource.type="k8s_container" AND resource.labels.namespace_name="kube-system" AND resource.labels.container_name="fluentbit-gke" AND severity="ERROR" AND (textPayload:"├─" OR jsonPayload.message:"Failed to parse operation")) OR
+    (logName:"logs/cloudaudit.googleapis.com%2Fdata_access" AND protoPayload.serviceName="artifactregistry.googleapis.com" AND protoPayload.status.code=2 AND protoPayload.authenticationInfo.principalEmail:("anonymous" OR "unknown"))
+  EOT
+}
