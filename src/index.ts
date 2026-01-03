@@ -12,7 +12,7 @@ dotenv.config();
   const secrets = await getSecrets();
 
   // Debug logging for Slack configuration
-  logger.info(`Slack configuration - Team ID: ${process.env.SLACK_TEAM_ID}, Channel ID: ${process.env.SLACK_CHANNEL_ID}`);
+  logger.info(`Slack configuration - Team ID: ${process.env.SLACK_TEAM_ID}, Channel ID: ${process.env.SLACK_CHANNEL_ID}, global station CRS: ${process.env.STATION_CRS}`);
 
   const receiver = new ExpressReceiver({
     signingSecret: secrets.slackSigningSecret,
@@ -32,7 +32,8 @@ dotenv.config();
   });
 
   app.use(async ({ body, next }) => {
-    const requestType = (body && typeof body === 'object' && 'type' in body) ? (body as any).type : 'unknown';
+    const bodyObj = body as Record<string, unknown>;
+    const requestType = (bodyObj && typeof bodyObj === 'object' && 'type' in bodyObj) ? (bodyObj as { type: string }).type : 'unknown';
     logger.info(`Received request: ${JSON.stringify({
       type: requestType,
       body: body
@@ -152,7 +153,7 @@ dotenv.config();
     await ack();
 
     const selectedOptions = view.state.values.station_selection_block.station_select_action.selected_options;
-    const selectedStations = selectedOptions?.map((option: any) => option.value) || [];
+    const selectedStations = selectedOptions?.map((option: { value: string }) => option.value) || [];
 
     await saveUserSettings(body.user.id, { stations: selectedStations });
 
