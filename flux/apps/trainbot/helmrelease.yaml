@@ -67,3 +67,7 @@ spec:
       name: flux-vars
       valuesKey: SLACK_CHANNEL_ID
       targetPath: env.SLACK_CHANNEL_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SECRET_NAME
+      targetPath: env.SECRET_NAME
