@@ -290,5 +290,9 @@ resource "kubernetes_config_map" "flux_vars" {
     "FIRESTORE_DATABASE_ID"     = "${var.gcp_project_id}-firestore-db"
     "SLACK_TEAM_ID"             = var.slack_team_id
     "SLACK_CHANNEL_ID"          = var.slack_channel_id
+    "STATION_CRS"               = var.station_crs
+    "NATIONAL_RAIL_API_URL"     = var.rail_api_url
+    "POLL_INTERVAL_MS"          = var.poll_interval_ms
+    "LOG_LEVEL"                 = var.log_level
   }
 }

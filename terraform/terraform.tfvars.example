@@ -12,3 +12,11 @@ secrets = {
   SLACK_BOT_TOKEN       = "your-slack-bot-token"
   NATIONAL_RAIL_API_KEY = "your-national-rail-api-key"
 }
+
+slack_team_id    = "your-slack-team-id"
+slack_channel_id = "your-slack-channel-id"
+
+station_crs           = "LST"
+rail_api_url          = "https://api1.raildata.org.uk/1010-knowlegebase-national-service-indicator-xml-feed2_0/4.0/serviceindicators.xml"
+poll_interval_ms      = "300000"
+log_level             = "info"
