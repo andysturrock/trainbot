@@ -18,18 +18,18 @@ jest.mock('@google-cloud/firestore', () => {
 });
 
 describe('user-settings', () => {
-  let mockCollectionFn: any;
-  let mockCollection: any;
-  let mockDocFn: any;
-  let mockDoc: any;
+  let mockCollectionFn: jest.Mock;
+  let mockCollection: { doc: jest.Mock; get: jest.Mock };
+  let mockDocFn: jest.Mock;
+  let mockDoc: { get: jest.Mock; set: jest.Mock };
 
   beforeAll(() => {
-    const dbAny = db as any;
+    const dbAny = db as unknown as { collection: jest.Mock };
     mockCollectionFn = dbAny.collection;
 
     // Identify 'user-settings' collection call
     const calls = mockCollectionFn.mock.calls;
-    const index = calls.findIndex((args: any[]) => args[0] === 'user-settings');
+    const index = calls.findIndex((args: unknown[]) => (args as string[])[0] === 'user-settings');
 
     if (index !== -1) {
       mockCollection = mockCollectionFn.mock.results[index].value;

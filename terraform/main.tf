@@ -285,15 +285,15 @@ resource "kubernetes_config_map" "flux_vars" {
   }
 
   data = {
-    GCP_PROJECT_ID              = var.gcp_project_id
-    "GCP_SERVICE_ACCOUNT_EMAIL" = google_service_account.gke_nodes.email
-    "FIRESTORE_DATABASE_ID"     = "${var.gcp_project_id}-firestore-db"
-    "SLACK_TEAM_ID"             = var.slack_team_id
-    "SLACK_CHANNEL_ID"          = var.slack_channel_id
-    "STATION_CRS"               = var.station_crs
-    "NATIONAL_RAIL_API_URL"     = var.rail_api_url
-    "POLL_INTERVAL_MS"          = var.poll_interval_ms
-    "LOG_LEVEL"                 = var.log_level
-    "SECRET_NAME"               = var.secret_name
+    GCP_PROJECT_ID            = var.gcp_project_id
+    GCP_SERVICE_ACCOUNT_EMAIL = google_service_account.gke_nodes.email
+    FIRESTORE_DATABASE_ID     = "${var.gcp_project_id}-firestore-db"
+    SLACK_TEAM_ID             = var.slack_team_id
+    SLACK_CHANNEL_ID          = var.slack_channel_id
+    STATION_CRS               = var.station_crs
+    NATIONAL_RAIL_API_URL     = var.rail_api_url
+    POLL_INTERVAL_MS          = var.poll_interval_ms
+    LOG_LEVEL                 = var.log_level
+    SECRET_NAME               = var.secret_name
   }
 }

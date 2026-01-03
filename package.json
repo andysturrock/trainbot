@@ -34,7 +34,6 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
-    "@types/axios": "^0.9.36",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.2",

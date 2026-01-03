@@ -18,20 +18,20 @@ jest.mock('@google-cloud/firestore', () => {
 });
 
 describe('database', () => {
-  let mockCollectionFn: any; // The collection function (spy)
-  let mockCollection: any;   // The object returned by collection()
-  let mockDocFn: any;        // The doc function (spy)
-  let mockDoc: any;          // The object returned by doc()
+  let mockCollectionFn: jest.Mock; // The collection function (spy)
+  let mockCollection: { doc: jest.Mock; get: jest.Mock };   // The object returned by collection()
+  let mockDocFn: jest.Mock;        // The doc function (spy)
+  let mockDoc: { get: jest.Mock; set: jest.Mock };          // The object returned by doc()
 
   beforeAll(() => {
     // 'db' is the instance created by the constructor mock.
     // It has 'collection' method which is a jest function.
-    const dbAny = db as any;
+    const dbAny = db as unknown as { collection: jest.Mock };
     mockCollectionFn = dbAny.collection;
 
     // Ensure db call was made (it happens at top level)
     if (mockCollectionFn.mock.calls.length === 0) {
-      console.warn("db.collection was not called during init? It might be called lazily or 'posted-incidents' is done at top level.");
+      // Intentionally empty or use a logger if needed
     }
 
     // Find the 'posted-incidents' call
