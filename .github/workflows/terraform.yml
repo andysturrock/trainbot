@@ -58,7 +58,10 @@ jobs:
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
             -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
             -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
-            -var="station_crs=${{ vars.STATION_CRS }}"
+            -var="station_crs=${{ vars.STATION_CRS }}" \
+            -var="rail_api_url=${{ vars.RAIL_API_URL }}" \
+            -var="poll_interval_ms=${{ vars.POLL_INTERVAL_MS }}" \
+            -var="log_level=${{ vars.LOG_LEVEL }}"
         continue-on-error: true
 
       - name: Update PR
@@ -105,4 +108,7 @@ jobs:
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
             -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
             -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
-            -var="station_crs=${{ vars.STATION_CRS }}"
+            -var="station_crs=${{ vars.STATION_CRS }}" \
+            -var="rail_api_url=${{ vars.RAIL_API_URL }}" \
+            -var="poll_interval_ms=${{ vars.POLL_INTERVAL_MS }}" \
+            -var="log_level=${{ vars.LOG_LEVEL }}"
