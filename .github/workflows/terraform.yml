@@ -6,9 +6,11 @@ on:
       - main
     paths:
       - 'terraform/**'
+      - '.github/workflows/terraform.yml'
   pull_request:
     paths:
       - 'terraform/**'
+      - '.github/workflows/terraform.yml'
   workflow_dispatch:
 
 defaults:
