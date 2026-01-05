@@ -54,6 +54,9 @@ jobs:
         run: |
           terraform plan -no-color -input=false \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="gcp_region=${{ vars.GCP_REGION }}" \
+            -var="cluster_name=${{ vars.CLUSTER_NAME }}" \
+            -var="secret_name=${{ vars.SECRET_NAME }}" \
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
@@ -104,6 +107,9 @@ jobs:
         run: |
           terraform apply -auto-approve -input=false \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="gcp_region=${{ vars.GCP_REGION }}" \
+            -var="cluster_name=${{ vars.CLUSTER_NAME }}" \
+            -var="secret_name=${{ vars.SECRET_NAME }}" \
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \

@@ -6,19 +6,16 @@ variable "gcp_project_id" {
 variable "gcp_region" {
   description = "The GCP region to deploy to."
   type        = string
-  default     = "europe-west2"
 }
 
 variable "cluster_name" {
   description = "The name of the GKE cluster."
   type        = string
-  default     = "trainbot"
 }
 
 variable "secret_name" {
   description = "The name of the secret in Secret Manager."
   type        = string
-  default     = "trainbot-slack-secrets"
 }
 
 variable "secrets" {
@@ -51,7 +48,6 @@ variable "slack_channel_id" {
 variable "github_repository" {
   description = "The GitHub repository name."
   type        = string
-  default     = "trainbot"
 }
 
 variable "station_crs" {
