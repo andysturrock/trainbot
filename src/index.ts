@@ -8,9 +8,9 @@ import { fetchStations, filterStations } from './stations';
 import { getUserSettings, saveUserSettings } from './user-settings';
 
 dotenv.config();
-const config = getConfig();
 
 (async () => {
+  const config = getConfig();
   const secrets = await getSecrets();
 
   // Debug logging for Slack configuration
