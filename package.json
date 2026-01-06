@@ -1,0 +1,40 @@
+{
+  "name": "trainbot",
+  "version": "1.0.0",
+  "description": "Slack bot which tells you if there are problems with trains from a station.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andysturrock/trainbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andysturrock/trainbot/issues"
+  },
+  "homepage": "https://github.com/andysturrock/trainbot#readme",
+  "dependencies": {
+    "@google-cloud/firestore": "^8.0.0",
+    "@google-cloud/secret-manager": "^6.1.1",
+    "@slack/bolt": "^4.6.0",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "fast-xml-parser": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.2",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
