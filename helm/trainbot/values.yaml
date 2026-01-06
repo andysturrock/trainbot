@@ -1,0 +1,41 @@
+# Default values for trainbot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  # The image repository is dynamically set by the 'scripts/deploy.sh' script
+  # during 'helm upgrade'. Example: europe-west2-docker.pkg.dev/your-gcp-project/trainbot-repo/trainbot
+  repository: placeholder-repository
+  pullPolicy: IfNotPresent
+  # The image tag is also set by the 'scripts/deploy.sh' script.
+  tag: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "trainbot-ksa"
+  # The email of the GCP service account to be used by the k8s service account
+  # This is dynamically set by the 'scripts/deploy.sh' script
+  gcpServiceAccountEmail: "placeholder-gsa-email"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+env:
+  NODE_ENV: "production"
+  GCP_PROJECT_ID: "prj-i-solid-ocelot-cf27"
+  SECRET_NAME: "trainbot-slack-secrets"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
