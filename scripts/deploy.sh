@@ -8,14 +8,20 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# --- WARNING ---
+# This script is for MANUAL deployments only.
+# The primary deployment method for this project is GitOps via FluxCD.
+# Push your code to 'main' and let Flux handle the deployment!
+# -----------------
+
 # --- Configuration ---
 # You can change these variables
 IMAGE_NAME="trainbot"
 IMAGE_TAG="latest"
 ARTIFACT_REGISTRY_REPO="trainbot-repo"
 HELM_RELEASE_NAME="trainbot"
-CLUSTER_NAME="trainbot-cluster"
-GSA_NAME="trainbot-gke-nodes" # Google Service Account name
+CLUSTER_NAME="trainbot"
+GSA_NAME="trainbot-sa" # From terraform/main.tf
 
 # Get the absolute path of the script's directory
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)

@@ -9,7 +9,9 @@ A Slack bot that polls the UK National Rail API for incidents at a given station
   - **Multi-Station Mode:** Allows users to select multiple stations to monitor from the App's Home tab. Any incidents are posted to the user's "Messages" tab in Slack.
 - **Built with Modern Technologies:** The application is built with TypeScript and runs in a Docker container.
 - **Infrastructure as Code:** The entire infrastructure is managed with Terraform, making it easy to deploy and manage.
-- **Deploys to Google Cloud:** The application is designed to be deployed to a GKE cluster in Google Cloud Platform.
+- **Deploys to Google Cloud:** Distributed on GKE Autopilot with automated log noise suppression.
+- **GitOps with FluxCD:** Automatically syncs manifests and promotes new container images.
+- **Strict Configuration:** Centralized environment variable validation ensures reliability in all environments.
 - **Local Development Environment:** Includes a Docker Compose setup for a consistent and easy-to-use local development environment with a Firestore emulator.
 
 ## Running Locally (with Docker)
@@ -165,20 +167,26 @@ To deploy the application to GCP, you will need to have the gcloud CLI installed
     > **Bootstrap Permissions**: The identity (user or service account) running the initial `terraform apply` must have high-level permissions on the GCP project (e.g., `roles/owner` or `roles/editor` + `roles/resourcemanager.projectIamAdmin`) to enable APIs and manage IAM policies. Subsequent automated runs via GitHub Actions use a dedicated service account with scoped permissions.
 
 9.  **Build and push the Docker image:**
-    First, configure Docker to use the gcloud CLI for authentication:
+    First, configure Docker to use the gcloud CLI for authentication to Artifact Registry:
     ```bash
-    gcloud auth configure-docker
+    gcloud auth configure-docker europe-west2-docker.pkg.dev
     ```
-    Then, build and push the Docker image to Google Container Registry (GCR). Make sure to replace `your-gcp-project-id` with your actual GCP project ID.
+    Then, build and push the Docker image. Make sure to replace `your-gcp-project-id` with your actual GCP project ID.
     ```bash
-    docker build -t gcr.io/your-gcp-project-id/trainbot:latest .
-    docker push gcr.io/your-gcp-project-id/trainbot:latest
+    docker build -t europe-west2-docker.pkg.dev/your-gcp-project-id/trainbot-repo/trainbot:latest .
+    docker push europe-west2-docker.pkg.dev/your-gcp-project-id/trainbot-repo/trainbot:latest
     ```
 
-10. **Deployment to GKE:**
-    The Terraform configuration already includes the Kubernetes deployment and service. Once the Docker image is pushed to GCR, GKE will automatically pull the image and deploy the application. You can get the external IP address of the service by running:
-    ```bash
-    kubectl get svc trainbot
-    ```
-    You will then need to update your Slack app's request URL to point to this IP address.
+10. **Deployment (GitOps):**
+    The application is managed via FluxCD. Once you have bootstrapped Flux (part of the Terraform apply), it will monitor the `flux/` directory in this repository.
+
+    - **To deploy a new version**: Push a new tag or update the image in Artifact Registry. Flux Image Automation will detect the new image and automatically commit the updated tag to `flux/apps/trainbot/helmrelease.yaml`.
+    - **To check deployment status**:
+      ```bash
+      kubectl get helmrelease -n default
+      kubectl get pods -n default
+      ```
+
+11. **Monitoring and Logs:**
+    The project includes custom log exclusions in Terraform to filter out GKE Autopilot platform noise, ensuring your Cloud Logging dashboard remains focused on application errors.
 

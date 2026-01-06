@@ -6,13 +6,25 @@ on:
       - '**'
     paths-ignore:
       - 'terraform/**'
+      - 'flux/**'
+      - 'helm/**'
+      - 'scripts/**'
       - '.github/workflows/terraform.yml'
       - 'README.md'
+      - '.env.example'
+      - 'terraform/terraform.tfvars.example'
+      - 'app.manifest.example'
   pull_request:
     paths-ignore:
       - 'terraform/**'
+      - 'flux/**'
+      - 'helm/**'
+      - 'scripts/**'
       - '.github/workflows/terraform.yml'
       - 'README.md'
+      - '.env.example'
+      - 'terraform/terraform.tfvars.example'
+      - 'app.manifest.example'
   workflow_dispatch:
 
 jobs:
