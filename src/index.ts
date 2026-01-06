@@ -1,4 +1,4 @@
-import { App, BlockAction } from '@slack/bolt';
+import { App, BlockAction, ExpressReceiver } from '@slack/bolt';
 import * as dotenv from 'dotenv';
 import logger from './logger';
 import { startPolling } from './polling';
@@ -11,10 +11,30 @@ dotenv.config();
 (async () => {
   const secrets = await getSecrets();
 
+  const receiver = new ExpressReceiver({
+    signingSecret: secrets.slackSigningSecret,
+  });
+
+  // Direct express routes for GKE health checks
+  receiver.app.get('/health', (_req, res) => {
+    res.status(200).send('OK');
+  });
+  receiver.app.get('/', (_req, res) => {
+    res.status(200).send('OK');
+  });
+
   const app = new App({
     token: secrets.slackBotToken,
-    signingSecret: secrets.slackSigningSecret,
-    clientOptions: { teamId: secrets.slackTeamId }
+    receiver,
+  });
+
+  app.use(async ({ body, next }) => {
+    const requestType = (body && typeof body === 'object' && 'type' in body) ? (body as any).type : 'unknown';
+    logger.info(`Received request: ${JSON.stringify({
+      type: requestType,
+      body: body
+    })}`);
+    await next();
   });
 
   app.event('app_home_opened', async ({ event, client }) => {
@@ -182,7 +202,7 @@ dotenv.config();
   const port = process.env.PORT || 3000;
   await app.start(port);
   logger.info(`⚡️ Bolt app is running on port ${port}!`);
-  startPolling(app, secrets.nationalRailApiKey, secrets.nationalRailApiUrl);
+  startPolling(app, secrets.nationalRailApiKey, process.env.NATIONAL_RAIL_API_URL!);
 })();
 
 

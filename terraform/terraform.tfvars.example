@@ -2,6 +2,8 @@ gcp_project_id = "your-gcp-project-id"
 gcp_region       = "europe-west2"
 cluster_name     = "trainbot"
 secret_name      = "trainbot-slack-secrets"
+
+# Purely sensitive secrets stored in Secret Manager
 secrets = {
   SLACK_SIGNING_SECRET  = "your-slack-signing-secret"
   SLACK_BOT_TOKEN       = "your-slack-bot-token"

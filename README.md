@@ -99,56 +99,62 @@ To deploy the application to GCP, you will need to have the gcloud CLI installed
     gcloud config set compute/region <REGION>
     ```
 
-4.  **Authorize Cloud Storage Service Account for KMS:**
+4.  **Setup KMS Resources (Optional):**
+    If your GCP project does not already have the required KMS KeyRing and CryptoKey (e.g., provided by a project factory), you can create them using the provided setup script:
+    ```bash
+    chmod +x scripts/setup-kms.sh
+    ./scripts/setup-kms.sh
+    ```
+    This script will enable the Cloud KMS API and create a KeyRing named `<PROJECT_ID>-default-cmek-key-ring` and a CryptoKey named `default-cmek-key` in `europe-west2`.
+
+5.  **Authorize Cloud Storage Service Account for KMS:**
     If your organization policy requires Customer-Managed Encryption Keys (CMEK) for GCS buckets, you need to authorize the Cloud Storage service account to use your KMS key.
 
     Run the following command:
     ```bash
     gsutil kms authorize \
-      -k projects/prj-i-solid-ocelot-cf27/locations/europe-west2/keyRings/prj-i-solid-ocelot-cf27-default-cmek-key-ring/cryptoKeys/default-cmek-key \
-      -p prj-i-solid-ocelot-cf27
+      -k projects/<YOUR_GCP_PROJECT_ID>/locations/europe-west2/keyRings/<YOUR_GCP_PROJECT_ID>-default-cmek-key-ring/cryptoKeys/default-cmek-key \
+      -p <YOUR_GCP_PROJECT_ID>
     ```
-    Ensure the `projects`, `locations`, `keyRings`, `cryptoKeys`, and `key` names match your organization's setup.
 
-5.  **Create the GCS Bucket for Terraform State:**
+6.  **Create the GCS Bucket for Terraform State:**
     Terraform will store its state file in a GCS bucket. You must create this bucket before initializing Terraform.
 
     Run the following commands, replacing `<YOUR_UNIQUE_BUCKET_NAME>` with a globally unique name:
     ```bash
     # Set your bucket name and CMEK key details
     TF_STATE_BUCKET="<YOUR_UNIQUE_BUCKET_NAME>"
-    GCP_PROJECT_ID=$(gcloud config get-value project) # This will be your currently configured gcloud project
-    KEY_RING_NAME="prj-i-solid-ocelot-cf27-default-cmek-key-ring" # User-provided keyring name
-    KEY_NAME="default-cmek-key" # User-provided key name
-    GCP_REGION=$(gcloud config get-value compute/region) # This should be your default region, e.g., europe-west2
+    GCP_PROJECT_ID=$(gcloud config get-value project)
+    KEY_RING_NAME="${GCP_PROJECT_ID}-default-cmek-key-ring"
+    KEY_NAME="default-cmek-key"
+    GCP_REGION=$(gcloud config get-value compute/region)
 
     # Create the bucket with the CMEK key
     gsutil mb -p $GCP_PROJECT_ID -l $GCP_REGION -k "projects/$GCP_PROJECT_ID/locations/$GCP_REGION/keyRings/$KEY_RING_NAME/cryptoKeys/$KEY_NAME" gs://$TF_STATE_BUCKET
 
-    # Enable versioning on the bucket (best practice for state files)
+    # Enable versioning on the bucket
     gsutil versioning set on gs://$TF_STATE_BUCKET
     ```
-    Remember the bucket name you chose for the next step.
 
-6.  **Configure Terraform variables:**
+7.  **Configure Terraform variables:**
     Create a `terraform.tfvars` file in the `terraform` directory by copying the `terraform/terraform.tfvars.example` file:
     ```bash
     cp terraform/terraform.tfvars.example terraform/terraform.tfvars
     ```
     Then, fill in the required values in the `terraform/terraform.tfvars` file.
 
-7.  **Initialize and Apply the Terraform configuration:**
+8.  **Initialize and Apply the Terraform configuration:**
     Navigate to the terraform directory. When you initialize Terraform, you must pass the name of the GCS bucket you created.
     ```bash
     # Ensure TF_STATE_BUCKET is exported in your shell
-    export TF_STATE_BUCKET="<YOUR_UNIQUE_BUCKET_NAME>" # Replace with the bucket name you created earlier
+    export TF_STATE_BUCKET="<YOUR_UNIQUE_BUCKET_NAME>"
     cd terraform
     terraform init -backend-config="bucket=$TF_STATE_BUCKET"
     terraform apply
     ```
     This will create the GKE cluster, the Secret Manager secret, the Firestore database, and all the other necessary resources.
 
-8.  **Build and push the Docker image:**
+9.  **Build and push the Docker image:**
     First, configure Docker to use the gcloud CLI for authentication:
     ```bash
     gcloud auth configure-docker
@@ -159,7 +165,7 @@ To deploy the application to GCP, you will need to have the gcloud CLI installed
     docker push gcr.io/your-gcp-project-id/trainbot:latest
     ```
 
-9.  **Deployment to GKE:**
+10. **Deployment to GKE:**
     The Terraform configuration already includes the Kubernetes deployment and service. Once the Docker image is pushed to GCR, GKE will automatically pull the image and deploy the application. You can get the external IP address of the service by running:
     ```bash
     kubectl get svc trainbot

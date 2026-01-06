@@ -11,6 +11,10 @@ export function startPolling(app: App, nationalRailApiKey: string, nationalRailA
 }
 
 async function poll(app: App, nationalRailApiKey: string, nationalRailApiUrl: string) {
+  if (!nationalRailApiUrl) {
+    logger.error('NATIONAL_RAIL_API_URL is missing from environment variables.');
+    return;
+  }
   try {
     logger.debug('Polling for incidents...');
 
