@@ -1,11 +1,12 @@
-
 import { App } from '@slack/bolt';
+import { getConfig } from './config';
 import { hasBeenPosted, markAsPosted } from './database';
 import { getIncidentsForStation } from './national-rail';
 import { startPolling } from './polling';
 import { getAllUserIds, getUserSettings } from './user-settings';
 
 // Mock dependencies
+jest.mock('./config');
 jest.mock('./database');
 jest.mock('./national-rail');
 jest.mock('./user-settings');
@@ -29,7 +30,12 @@ describe('polling', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    process.env.POLL_INTERVAL_MS = '60000';
+    (getConfig as jest.Mock).mockReturnValue({
+      pollIntervalMs: 60000,
+      stationCrs: 'WAT',
+      slackChannelId: 'C123',
+      nationalRailApiUrl: 'url'
+    });
     (getAllUserIds as jest.Mock).mockResolvedValue([]);
     jest.spyOn(console, 'log').mockImplementation(() => { });
     jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -37,31 +43,23 @@ describe('polling', () => {
 
   afterEach(() => {
     jest.useRealTimers();
-    delete process.env.STATION_CRS;
-    delete process.env.SLACK_CHANNEL_ID;
-    delete process.env.POLL_INTERVAL_MS;
     jest.restoreAllMocks();
   });
 
   it('should set up polling interval', () => {
     const spy = jest.spyOn(global, 'setInterval');
-    startPolling(mockApp, mockApiKey, mockApiUrl);
-    expect(spy).toHaveBeenCalledWith(expect.any(Function), 60000, mockApp, mockApiKey, mockApiUrl);
+    startPolling(mockApp, mockApiKey);
+    expect(spy).toHaveBeenCalledWith(expect.any(Function), 60000, mockApp, mockApiKey);
   });
 
   describe('Global Polling', () => {
-    beforeEach(() => {
-      process.env.STATION_CRS = 'WAT';
-      process.env.SLACK_CHANNEL_ID = 'C123';
-    });
-
     it('should post new incidents to global channel', async () => {
       (getIncidentsForStation as jest.Mock).mockResolvedValue([
         { title: 'Delay', summary: 'Broken train', url: 'http://incident/1' }
       ]);
       (hasBeenPosted as jest.Mock).mockResolvedValue(false);
 
-      startPolling(mockApp, mockApiKey, mockApiUrl);
+      startPolling(mockApp, mockApiKey);
 
       // Wait for async operations to complete
       await flushPromises();
@@ -81,7 +79,7 @@ describe('polling', () => {
       ]);
       (hasBeenPosted as jest.Mock).mockResolvedValue(true);
 
-      startPolling(mockApp, mockApiKey, mockApiUrl);
+      startPolling(mockApp, mockApiKey);
       await flushPromises();
 
       expect(mockPostMessage).not.toHaveBeenCalled();
@@ -90,13 +88,15 @@ describe('polling', () => {
   });
 
   describe('User Polling', () => {
-    beforeEach(() => {
-      // Disable global
-      delete process.env.STATION_CRS;
-      delete process.env.SLACK_CHANNEL_ID;
-    });
-
     it('should poll for each user', async () => {
+      // Disable global by returning empty/null for its values
+      (getConfig as jest.Mock).mockReturnValue({
+        pollIntervalMs: 60000,
+        stationCrs: '',
+        slackChannelId: '',
+        nationalRailApiUrl: 'url'
+      });
+
       (getAllUserIds as jest.Mock).mockResolvedValue(['U1', 'U2']);
       (getUserSettings as jest.Mock).mockImplementation((userId: string) => {
         if (userId === 'U1') return Promise.resolve({ stations: ['ABC'] });
@@ -108,9 +108,9 @@ describe('polling', () => {
       ]);
       (hasBeenPosted as jest.Mock).mockResolvedValue(false);
 
-      startPolling(mockApp, mockApiKey, mockApiUrl);
+      startPolling(mockApp, mockApiKey);
       await flushPromises();
-      await flushPromises(); // Sometimes needed for deeper chains
+      await flushPromises();
 
       // Check U1
       expect(getIncidentsForStation).toHaveBeenCalledWith('ABC', mockApiKey, mockApiUrl);

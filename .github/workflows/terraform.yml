@@ -6,9 +6,11 @@ on:
       - main
     paths:
       - 'terraform/**'
+      - '.github/workflows/terraform.yml'
   pull_request:
     paths:
       - 'terraform/**'
+      - '.github/workflows/terraform.yml'
   workflow_dispatch:
 
 defaults:
@@ -52,12 +54,19 @@ jobs:
         run: |
           terraform plan -no-color -input=false \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="gcp_region=${{ vars.GCP_REGION }}" \
+            -var="cluster_name=${{ vars.CLUSTER_NAME }}" \
+            -var="secret_name=${{ vars.SECRET_NAME }}" \
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
             -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
-            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}"
+            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
+            -var="station_crs=${{ vars.STATION_CRS }}" \
+            -var="rail_api_url=${{ vars.RAIL_API_URL }}" \
+            -var="poll_interval_ms=${{ vars.POLL_INTERVAL_MS }}" \
+            -var="log_level=${{ vars.LOG_LEVEL }}"
         continue-on-error: true
 
       - name: Update PR
@@ -98,9 +107,16 @@ jobs:
         run: |
           terraform apply -auto-approve -input=false \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="gcp_region=${{ vars.GCP_REGION }}" \
+            -var="cluster_name=${{ vars.CLUSTER_NAME }}" \
+            -var="secret_name=${{ vars.SECRET_NAME }}" \
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
             -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
-            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}"
+            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
+            -var="station_crs=${{ vars.STATION_CRS }}" \
+            -var="rail_api_url=${{ vars.RAIL_API_URL }}" \
+            -var="poll_interval_ms=${{ vars.POLL_INTERVAL_MS }}" \
+            -var="log_level=${{ vars.LOG_LEVEL }}"
