@@ -1,4 +1,4 @@
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: trainbot
@@ -15,9 +15,10 @@ spec:
       interval: 1m
   values:
     image:
-      repository: europe-west2-docker.pkg.dev/${gcp_project_id}/trainbot-repo/trainbot
-      tag: "latest" # This will be updated by CI/CD
+      tag: prod-1203 # {"$imagepolicy": "flux-system:trainbot:tag"}
       pullPolicy: Always
+    env:
+      NODE_ENV: "production"
     resources:
       requests:
         cpu: 100m
@@ -25,3 +26,48 @@ spec:
       limits:
         cpu: 200m
         memory: 256Mi
+  valuesFrom:
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: GCP_PROJECT_ID
+      targetPath: image.projectId
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: GCP_PROJECT_ID
+      targetPath: env.GCP_PROJECT_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: FIRESTORE_DATABASE_ID
+      targetPath: env.FIRESTORE_DATABASE_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: GCP_SERVICE_ACCOUNT_EMAIL
+      targetPath: serviceAccount.gcpServiceAccountEmail
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: STATION_CRS
+      targetPath: env.STATION_CRS
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: NATIONAL_RAIL_API_URL
+      targetPath: env.NATIONAL_RAIL_API_URL
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: LOG_LEVEL
+      targetPath: env.LOG_LEVEL
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: POLL_INTERVAL_MS
+      targetPath: env.POLL_INTERVAL_MS
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SLACK_TEAM_ID
+      targetPath: env.SLACK_TEAM_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SLACK_CHANNEL_ID
+      targetPath: env.SLACK_CHANNEL_ID
+    - kind: ConfigMap
+      name: flux-vars
+      valuesKey: SECRET_NAME
+      targetPath: env.SECRET_NAME

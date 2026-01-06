@@ -1,4 +1,5 @@
 
+import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { fetchStations, filterStations, getStations } from './stations';
 
@@ -30,7 +31,7 @@ describe('stations', () => {
         { stationName: 'London Waterloo', crsCode: 'WAT' },
         { stationName: 'Bristol Temple Meads', crsCode: 'BRI' },
       ];
-      mockedAxios.get.mockResolvedValue({ data: mockData } as any);
+      mockedAxios.get.mockResolvedValue({ data: mockData } as unknown as AxiosResponse);
 
       await fetchStations();
 
@@ -58,7 +59,7 @@ describe('stations', () => {
         { stationName: 'Bristol Temple Meads', crsCode: 'BRI' },
         { stationName: 'Manchester Piccadilly', crsCode: 'MAN' },
       ];
-      mockedAxios.get.mockResolvedValue({ data: mockData } as any);
+      mockedAxios.get.mockResolvedValue({ data: mockData } as unknown as AxiosResponse);
 
       await fetchStations();
     });
