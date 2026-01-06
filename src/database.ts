@@ -34,6 +34,7 @@ export { db };
 
 
 const postedIncidentsCollection = db.collection('posted-incidents');
+const stationStatusCollection = db.collection('station-status');
 
 export async function hasBeenPosted(incidentUrl: string): Promise<boolean> {
   const docId = encodeURIComponent(incidentUrl);
@@ -46,4 +47,23 @@ export async function markAsPosted(incidentUrl: string): Promise<void> {
   await postedIncidentsCollection.doc(docId).set({
     postedAt: new Date(),
   });
+}
+
+export async function hasGoodServiceBeenPosted(channelId: string, stationCrs: string): Promise<boolean> {
+  const docId = `${channelId}-${stationCrs}`;
+  const doc = await stationStatusCollection.doc(docId).get();
+  return doc.exists && doc.data()?.status === 'good';
+}
+
+export async function markGoodServiceAsPosted(channelId: string, stationCrs: string): Promise<void> {
+  const docId = `${channelId}-${stationCrs}`;
+  await stationStatusCollection.doc(docId).set({
+    status: 'good',
+    postedAt: new Date(),
+  });
+}
+
+export async function clearGoodServicePosted(channelId: string, stationCrs: string): Promise<void> {
+  const docId = `${channelId}-${stationCrs}`;
+  await stationStatusCollection.doc(docId).delete();
 }
