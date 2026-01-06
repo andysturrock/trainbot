@@ -1,5 +1,6 @@
 import { App, BlockAction } from '@slack/bolt';
 import * as dotenv from 'dotenv';
+import logger from './logger';
 import { startPolling } from './polling';
 import { getSecrets } from './secrets';
 import { fetchStations, filterStations } from './stations';
@@ -13,7 +14,7 @@ dotenv.config();
   const app = new App({
     token: secrets.slackBotToken,
     signingSecret: secrets.slackSigningSecret,
-    clientOptions: {teamId: secrets.slackTeamId}
+    clientOptions: { teamId: secrets.slackTeamId }
   });
 
   app.event('app_home_opened', async ({ event, client }) => {
@@ -57,7 +58,7 @@ dotenv.config();
         },
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -100,7 +101,7 @@ dotenv.config();
         },
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
@@ -108,7 +109,7 @@ dotenv.config();
   app.options('station_select_action', async ({ ack, payload }) => {
     try {
       const searchTerm = payload.value.toLowerCase();
-      console.log(`Station search term: "${searchTerm}"`);
+      logger.debug(`Station search term: "${searchTerm}"`);
       const filtered = filterStations(searchTerm).map((station) => ({
         text: {
           type: 'plain_text' as const,
@@ -116,10 +117,10 @@ dotenv.config();
         },
         value: station.crs,
       }));
-      console.log(`Found ${filtered.length} stations.`);
+      logger.debug(`Found ${filtered.length} stations.`);
       await ack({ options: filtered.slice(0, 100) }); // Slack limits to 100 options
     } catch (error) {
-      console.error('Error in station_select_action options handler: ', error);
+      logger.error('Error in station_select_action options handler: ', error);
       await ack({ options: [] });
     }
   });
@@ -173,14 +174,14 @@ dotenv.config();
         },
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   });
 
   await fetchStations();
   const port = process.env.PORT || 3000;
   await app.start(port);
-  console.log(`⚡️ Bolt app is running on port ${port}!`);
+  logger.info(`⚡️ Bolt app is running on port ${port}!`);
   startPolling(app, secrets.nationalRailApiKey, secrets.nationalRailApiUrl);
 })();
 

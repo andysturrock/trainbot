@@ -1,4 +1,5 @@
 import { Firestore } from '@google-cloud/firestore';
+import logger from './logger';
 
 let db: Firestore;
 
@@ -13,12 +14,12 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
       private_key: 'test_key',
     },
   });
-  console.log(`Connecting to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+  logger.info(`Connecting to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
 } else {
   // Connect to the live Firestore service
   db = new Firestore();
   if (process.env.NODE_ENV !== 'test') {
-    console.log('Connecting to live Firestore service.');
+    logger.info('Connecting to live Firestore service.');
   }
 }
 

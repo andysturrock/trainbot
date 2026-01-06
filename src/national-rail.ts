@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
+import logger from './logger';
 import { getStations } from './stations';
 import { NationalRailIncident } from './types';
 
@@ -8,13 +9,13 @@ export async function getIncidentsForStation(stationCrs: string, apiKey: string,
     const station = stations.find(s => s.crs === stationCrs);
 
     if (!station) {
-      console.warn(`Station with CRS code ${stationCrs} not found.`);
+      logger.warn(`Station with CRS code ${stationCrs} not found.`);
       return [];
     }
 
     const stationNameSlug = station.name.toLowerCase().replace(/ /g, '-');
     const stationName = station.name.toLowerCase();
-    console.log(`Filtering incidents for station: ${station.name} (slug: ${stationNameSlug})`);
+    logger.debug(`Filtering incidents for station: ${station.name} (slug: ${stationNameSlug})`);
 
     const response = await fetch(nationalRailApiUrl, {
       headers: {
@@ -54,7 +55,7 @@ export async function getIncidentsForStation(stationCrs: string, apiKey: string,
       }
     }
 
-    console.log(`Found ${allIncidents.length} total incidents before filtering.`);
+    logger.debug(`Found ${allIncidents.length} total incidents before filtering.`);
 
     const filteredIncidents = allIncidents.filter(incident => {
       const url = incident.url.toLowerCase();
@@ -63,11 +64,11 @@ export async function getIncidentsForStation(stationCrs: string, apiKey: string,
       return url.includes(stationNameSlug) || summary.includes(stationName);
     });
 
-    console.log(`Found ${filteredIncidents.length} incidents for ${station.name}.`);
+    logger.debug(`Found ${filteredIncidents.length} incidents for ${station.name}.`);
 
     return filteredIncidents;
   } catch (error) {
-    console.error('Error parsing incidents from National Rail API response:', error);
+    logger.error('Error parsing incidents from National Rail API response:', error);
     return [];
   }
 }
