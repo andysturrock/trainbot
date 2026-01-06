@@ -77,6 +77,12 @@ resource "google_project_iam_member" "github_actions_artifact_registry_admin" {
   member  = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
+resource "google_project_iam_member" "github_actions_logging_admin" {
+  project = var.gcp_project_id
+  role    = "roles/logging.configWriter"
+  member  = "serviceAccount:${google_service_account.github_actions.email}"
+}
+
 output "workload_identity_provider" {
   value = google_iam_workload_identity_pool_provider.github_provider.name
 }
