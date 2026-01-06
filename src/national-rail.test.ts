@@ -41,9 +41,9 @@ describe('getIncidentsForStation', () => {
         <TOC>
           <TocName>Test Operator</TocName>
           <Status>Service Disruption</Status>
-          <StatusDescription>Delays expected</StatusDescription>
+          <StatusDescription>Delays expected at Test Station</StatusDescription>
           <ServiceGroup>
-            <CustomURL>http://example.com/incident-tst</CustomURL>
+            <CustomURL>http://example.com/incident-test-station</CustomURL>
           </ServiceGroup>
         </TOC>
       </NSI>
@@ -59,35 +59,8 @@ describe('getIncidentsForStation', () => {
       headers: { 'x-apikey': mockApiKey },
     });
 
-    // The slug for 'Test Station' is 'test-station'
-    // The CustomURL 'http://example.com/incident-tst' does NOT contain 'test-station'
-    // But verify the filtering logic:
-    // url.includes(stationNameSlug) || summary.includes(stationName)
-    // slug = 'test-station', stationName = 'test station'
-    // URL doesn't match. Summary 'Delays expected' doesn't match.
-    // So it should return empty if I stick to the logic strictly.
-
-    // Let's adjust the mock to match
-    const mockXmlResponseMatching = `
-      <NSI>
-        <TOC>
-          <TocName>Test Operator</TocName>
-          <Status>Service Disruption</Status>
-          <StatusDescription>Delays expected at Test Station</StatusDescription>
-          <ServiceGroup>
-            <CustomURL>http://example.com/incident-test-station</CustomURL>
-          </ServiceGroup>
-        </TOC>
-      </NSI>
-    `;
-    (global.fetch as jest.Mock).mockResolvedValue({
-      text: jest.fn().mockResolvedValue(mockXmlResponseMatching),
-    });
-
-    const result2 = await getIncidentsForStation('TST', mockApiKey, mockApiUrl);
-
-    expect(result2).toHaveLength(1);
-    expect(result2[0]).toEqual({
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({
       title: 'Test Operator: Service Disruption',
       summary: 'Delays expected at Test Station',
       url: 'http://example.com/incident-test-station',

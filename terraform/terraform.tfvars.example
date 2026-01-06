@@ -1,3 +1,6 @@
+github_owner = "your-github-username"
+github_token = "your-github-pat" # Or pass via TF_VAR_github_token env var
+
 gcp_project_id = "your-gcp-project-id"
 gcp_region       = "europe-west2"
 cluster_name     = "trainbot"
