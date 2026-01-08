@@ -42,7 +42,7 @@ dotenv.config();
     const isAuthorizedEnterprise = config.slackEnterpriseId && enterpriseId === config.slackEnterpriseId;
 
     if (!isAuthorizedTeam && !isAuthorizedEnterprise) {
-      boltLogger.warn(`Rejected request from unauthorized source: Team=${teamId}, Enterprise=${enterpriseId}`);
+      logger.warn(`Rejected request from unauthorized source: Team=${teamId}, Enterprise=${enterpriseId}`);
       return; // Stop processing the request
     }
 
