@@ -15,7 +15,7 @@ dotenv.config();
   const secrets = await getSecrets();
 
   // Debug logging for Slack configuration
-  logger.info(`Slack configuration - Team ID: ${config.slackTeamId}, Channel ID: ${config.slackChannelId}, global station CRS: ${config.stationCrs}`);
+  logger.info(`Slack configuration - Team ID: ${config.slackTeamId}, Enterprise ID: ${config.slackEnterpriseId || 'None'}, Channel ID: ${config.slackChannelId}, global station CRS: ${config.stationCrs}`);
 
   const receiver = new ExpressReceiver({
     signingSecret: secrets.slackSigningSecret,
