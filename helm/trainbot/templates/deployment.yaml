@@ -46,6 +46,8 @@ spec:
           value: {{ .Values.env.NATIONAL_RAIL_API_URL | quote }}
         - name: SLACK_TEAM_ID
           value: {{ .Values.env.SLACK_TEAM_ID | quote }}
+        - name: SLACK_ENTERPRISE_ID
+          value: {{ .Values.env.SLACK_ENTERPRISE_ID | quote }}
         - name: STATION_CRS
           value: {{ .Values.env.STATION_CRS | quote }}
         - name: SLACK_CHANNEL_ID

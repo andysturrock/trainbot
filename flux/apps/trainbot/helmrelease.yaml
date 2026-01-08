@@ -65,6 +65,10 @@ spec:
       targetPath: env.SLACK_TEAM_ID
     - kind: ConfigMap
       name: flux-vars
+      valuesKey: SLACK_ENTERPRISE_ID
+      targetPath: env.SLACK_ENTERPRISE_ID
+    - kind: ConfigMap
+      name: flux-vars
       valuesKey: SLACK_CHANNEL_ID
       targetPath: env.SLACK_CHANNEL_ID
     - kind: ConfigMap

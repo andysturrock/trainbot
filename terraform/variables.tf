@@ -40,6 +40,12 @@ variable "slack_team_id" {
   type        = string
 }
 
+variable "slack_enterprise_id" {
+  description = "Slack Enterprise ID (optional)"
+  type        = string
+  default     = ""
+}
+
 variable "slack_channel_id" {
   description = "Slack Channel ID"
   type        = string
