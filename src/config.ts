@@ -11,6 +11,7 @@ export interface Config {
   secretName: string;
   nodeEnv: string;
   port: number;
+  slackEnterpriseId?: string;
 }
 
 function getEnv(name: string, required = true): string {
@@ -52,6 +53,7 @@ export function getConfig(): Config {
       gcpProjectId: getEnv('GCP_PROJECT_ID', nodeEnv === 'production'),
       secretName: getEnv('SECRET_NAME', nodeEnv === 'production'),
       port: getIntEnv('PORT', false, 3000),
+      slackEnterpriseId: process.env.SLACK_ENTERPRISE_ID,
     };
 
     return config;

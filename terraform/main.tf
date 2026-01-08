@@ -289,6 +289,7 @@ resource "kubernetes_config_map" "flux_vars" {
     GCP_SERVICE_ACCOUNT_EMAIL = google_service_account.gke_nodes.email
     FIRESTORE_DATABASE_ID     = "${var.gcp_project_id}-firestore-db"
     SLACK_TEAM_ID             = var.slack_team_id
+    SLACK_ENTERPRISE_ID       = var.slack_enterprise_id
     SLACK_CHANNEL_ID          = var.slack_channel_id
     STATION_CRS               = var.station_crs
     NATIONAL_RAIL_API_URL     = var.rail_api_url

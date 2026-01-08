@@ -6,6 +6,7 @@ import { startPolling } from './polling';
 import { getSecrets } from './secrets';
 import { fetchStations, filterStations } from './stations';
 import { getUserSettings, saveUserSettings } from './user-settings';
+import { getSlackContext } from './verification';
 
 dotenv.config();
 
@@ -31,6 +32,21 @@ dotenv.config();
   const app = new App({
     token: secrets.slackBotToken,
     receiver,
+  });
+
+  // Global middleware to verify workspace/enterprise
+  app.use(async ({ body, next, logger: boltLogger }) => {
+    const { teamId, enterpriseId } = getSlackContext(body);
+
+    const isAuthorizedTeam = config.slackTeamId && teamId === config.slackTeamId;
+    const isAuthorizedEnterprise = config.slackEnterpriseId && enterpriseId === config.slackEnterpriseId;
+
+    if (!isAuthorizedTeam && !isAuthorizedEnterprise) {
+      boltLogger.warn(`Rejected request from unauthorized source: Team=${teamId}, Enterprise=${enterpriseId}`);
+      return; // Stop processing the request
+    }
+
+    await next();
   });
 
   app.use(async ({ body, next }) => {
