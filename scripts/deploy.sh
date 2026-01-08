@@ -20,8 +20,8 @@ IMAGE_NAME="trainbot"
 IMAGE_TAG="latest"
 ARTIFACT_REGISTRY_REPO="trainbot-repo"
 HELM_RELEASE_NAME="trainbot"
-CLUSTER_NAME="trainbot"
-GSA_NAME="trainbot-sa" # From terraform/main.tf
+CLUSTER_NAME="trainbot-cluster"
+GSA_NAME="trainbot-gke-nodes" # From terraform/main.tf
 
 # Get the absolute path of the script's directory
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -76,11 +76,11 @@ gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$GCP_REGION"
 
 # 5. Deploy with Helm
 # Uses 'helm upgrade --install' to be idempotent.
-# Dynamically sets the image repository, tag, and GSA email.
+# Dynamically sets the image project ID, tag, and GSA email.
 echo
 echo "STEP 5: Deploying application with Helm..."
 helm upgrade --install "$HELM_RELEASE_NAME" "$HELM_CHART_PATH" \
-  --set image.repository="$REGISTRY_HOSTNAME/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY_REPO/$IMAGE_NAME" \
+  --set image.projectId="$GCP_PROJECT_ID" \
   --set image.tag="$IMAGE_TAG" \
   --set serviceAccount.gcpServiceAccountEmail="$GSA_EMAIL" \
   --set env.NODE_ENV="${NODE_ENV:-production}" \
