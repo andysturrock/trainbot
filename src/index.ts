@@ -5,6 +5,7 @@ import logger from './logger';
 import { startPolling } from './polling';
 import { getSecrets } from './secrets';
 import { fetchStations, filterStations } from './stations';
+import { getHomeView } from './ui';
 import { getUserSettings, saveUserSettings } from './user-settings';
 import { getSlackContext } from './verification';
 
@@ -67,38 +68,7 @@ dotenv.config();
 
       await client.views.publish({
         user_id: event.user,
-        view: {
-          type: 'home',
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: 'Welcome to TrainBot!',
-              },
-            },
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `*Your Stations:* ${stationsText}`,
-              },
-            },
-            {
-              type: 'actions',
-              elements: [
-                {
-                  type: 'button',
-                  text: {
-                    type: 'plain_text',
-                    text: 'Add/Edit Stations',
-                  },
-                  action_id: 'add_station_button',
-                },
-              ],
-            },
-          ],
-        },
+        view: getHomeView(stationsText),
       });
     } catch (error) {
       logger.error(error);
@@ -183,50 +153,7 @@ dotenv.config();
     try {
       await client.views.publish({
         user_id: body.user.id,
-        view: {
-          type: 'home',
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: 'Welcome to TrainBot!',
-              },
-            },
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `*Your Stations:* ${stationsText}`,
-              },
-            },
-            {
-              type: 'actions',
-              elements: [
-                {
-                  type: 'button',
-                  text: {
-                    type: 'plain_text',
-                    text: 'Add/Edit Stations',
-                  },
-                  action_id: 'add_station_button',
-                },
-              ],
-            },
-            {
-              type: 'divider',
-            },
-            {
-              type: 'context',
-              elements: [
-                {
-                  type: 'mrkdwn',
-                  text: 'This application utilizes data provided by the Rail Delivery Group through the Rail Data Marketplace. All rights reserved by the respective data publishers and licensors.',
-                },
-              ],
-            },
-          ],
-        },
+        view: getHomeView(stationsText),
       });
     } catch (error) {
       logger.error(error);
