@@ -17,13 +17,13 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
   logger.info(`Connecting to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
 } else {
   // Connect to the live Firestore service
-  logger.info(`FIRESTORE_DATABASE_ID: "${process.env.FIRESTORE_DATABASE_ID}"`);
-  logger.info(`GCP_PROJECT_ID: "${process.env.GCP_PROJECT_ID}"`);
+  logger.debug(`FIRESTORE_DATABASE_ID: "${process.env.FIRESTORE_DATABASE_ID}"`);
+  logger.debug(`GCP_PROJECT_ID: "${process.env.GCP_PROJECT_ID}"`);
   const config = {
     databaseId: process.env.FIRESTORE_DATABASE_ID || '(default)',
     projectId: process.env.GCP_PROJECT_ID,
   };
-  logger.info(`Firestore config: ${JSON.stringify(config)}`);
+  logger.debug(`Firestore config: ${JSON.stringify(config)}`);
   db = new Firestore(config);
   if (process.env.NODE_ENV !== 'test') {
     logger.info(`Connecting to live Firestore service. Project: ${config.projectId}, Database: ${config.databaseId}`);

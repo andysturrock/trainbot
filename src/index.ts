@@ -36,6 +36,7 @@ dotenv.config();
 
   // Global middleware to verify workspace/enterprise
   app.use(async ({ body, next }) => {
+    logger.debug(`Verifying request for team: ${(body as any).team_id || (body as any).team?.id}`);
     const { teamId, enterpriseId } = getSlackContext(body);
 
     const isAuthorizedTeam = config.slackTeamId && teamId === config.slackTeamId;
@@ -52,7 +53,7 @@ dotenv.config();
   app.use(async ({ body, next }) => {
     const bodyObj = body as Record<string, unknown>;
     const requestType = (bodyObj && typeof bodyObj === 'object' && 'type' in bodyObj) ? (bodyObj as { type: string }).type : 'unknown';
-    logger.info(`Received request: ${JSON.stringify({
+    logger.debug(`Received request: ${JSON.stringify({
       type: requestType,
       body: body
     })}`);
