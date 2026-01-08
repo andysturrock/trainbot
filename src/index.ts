@@ -213,6 +213,18 @@ dotenv.config();
                 },
               ],
             },
+            {
+              type: 'divider',
+            },
+            {
+              type: 'context',
+              elements: [
+                {
+                  type: 'mrkdwn',
+                  text: 'This application utilizes data provided by the Rail Delivery Group through the Rail Data Marketplace. All rights reserved by the respective data publishers and licensors.',
+                },
+              ],
+            },
           ],
         },
       });
