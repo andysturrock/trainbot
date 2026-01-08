@@ -35,7 +35,7 @@ dotenv.config();
   });
 
   // Global middleware to verify workspace/enterprise
-  app.use(async ({ body, next, logger: boltLogger }) => {
+  app.use(async ({ body, next }) => {
     const { teamId, enterpriseId } = getSlackContext(body);
 
     const isAuthorizedTeam = config.slackTeamId && teamId === config.slackTeamId;
