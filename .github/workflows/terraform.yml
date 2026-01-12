@@ -50,24 +50,24 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         run: |
           terraform plan -no-color -input=false \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
-            -var="gcp_region=${{ vars.GCP_REGION }}" \
-            -var="cluster_name=${{ vars.CLUSTER_NAME }}" \
-            -var="secret_name=${{ vars.SECRET_NAME }}" \
+            -var="gcp_region=${{ secrets.GCP_REGION }}" \
+            -var="cluster_name=${{ secrets.CLUSTER_NAME }}" \
+            -var="secret_name=${{ secrets.SECRET_NAME }}" \
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
-            -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
+            -var="slack_team_id=${{ secrets.SLACK_TEAM_ID }}" \
             -var="slack_enterprise_id=${{ secrets.SLACK_ENTERPRISE_ID }}" \
-            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
-            -var="station_crs=${{ vars.STATION_CRS }}" \
-            -var="rail_api_url=${{ vars.RAIL_API_URL }}" \
-            -var="poll_interval_ms=${{ vars.POLL_INTERVAL_MS }}" \
-            -var="log_level=${{ vars.LOG_LEVEL }}"
+            -var="slack_channel_id=${{ secrets.SLACK_CHANNEL_ID }}" \
+            -var="station_crs=${{ secrets.STATION_CRS }}" \
+            -var="rail_api_url=${{ secrets.RAIL_API_URL }}" \
+            -var="poll_interval_ms=${{ secrets.POLL_INTERVAL_MS }}" \
+            -var="log_level=${{ secrets.LOG_LEVEL }}"
         continue-on-error: true
 
       - name: Update PR
@@ -104,21 +104,21 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
         run: |
           terraform apply -auto-approve -input=false \
             -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
-            -var="gcp_region=${{ vars.GCP_REGION }}" \
-            -var="cluster_name=${{ vars.CLUSTER_NAME }}" \
-            -var="secret_name=${{ vars.SECRET_NAME }}" \
+            -var="gcp_region=${{ secrets.GCP_REGION }}" \
+            -var="cluster_name=${{ secrets.CLUSTER_NAME }}" \
+            -var="secret_name=${{ secrets.SECRET_NAME }}" \
             -var="github_owner=${{ github.repository_owner }}" \
             -var="github_token=${{ secrets.GH_PAT_FOR_FLUX }}" \
             -var="github_repository=${{ github.event.repository.name }}" \
             -var="secrets=${{ secrets.APP_SECRETS_JSON }}" \
-            -var="slack_team_id=${{ vars.SLACK_TEAM_ID }}" \
+            -var="slack_team_id=${{ secrets.SLACK_TEAM_ID }}" \
             -var="slack_enterprise_id=${{ secrets.SLACK_ENTERPRISE_ID }}" \
-            -var="slack_channel_id=${{ vars.SLACK_CHANNEL_ID }}" \
-            -var="station_crs=${{ vars.STATION_CRS }}" \
-            -var="rail_api_url=${{ vars.RAIL_API_URL }}" \
-            -var="poll_interval_ms=${{ vars.POLL_INTERVAL_MS }}" \
-            -var="log_level=${{ vars.LOG_LEVEL }}"
+            -var="slack_channel_id=${{ secrets.SLACK_CHANNEL_ID }}" \
+            -var="station_crs=${{ secrets.STATION_CRS }}" \
+            -var="rail_api_url=${{ secrets.RAIL_API_URL }}" \
+            -var="poll_interval_ms=${{ secrets.POLL_INTERVAL_MS }}" \
+            -var="log_level=${{ secrets.LOG_LEVEL }}"
