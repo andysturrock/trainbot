@@ -24,7 +24,7 @@
   "homepage": "https://github.com/andysturrock/trainbot#readme",
   "dependencies": {
     "@dbalabka/chrome-wsl": "^0.5.1",
-    "@google-cloud/firestore": "^8.1.0",
+    "@google-cloud/firestore": "^8.2.0",
     "@google-cloud/secret-manager": "^6.1.1",
     "@slack/bolt": "^4.6.0",
     "axios": "^1.13.2",
