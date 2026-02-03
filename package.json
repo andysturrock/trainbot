@@ -27,7 +27,7 @@
     "@google-cloud/firestore": "^8.2.0",
     "@google-cloud/secret-manager": "^6.1.1",
     "@slack/bolt": "^4.6.0",
-    "axios": "^1.13.3",
+    "axios": "^1.13.4",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "fast-xml-parser": "^5.3.4",
