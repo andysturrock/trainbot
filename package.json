@@ -30,7 +30,7 @@
     "axios": "^1.15.0",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
-    "fast-xml-parser": "^5.5.11",
+    "fast-xml-parser": "^5.5.12",
     "winston": "^3.19.0"
   },
   "devDependencies": {
