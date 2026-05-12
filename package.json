@@ -25,7 +25,7 @@
   "dependencies": {
     "@dbalabka/chrome-wsl": "^0.6.0",
     "@google-cloud/firestore": "^8.6.0",
-    "@google-cloud/secret-manager": "^6.1.1",
+    "@google-cloud/secret-manager": "^6.1.2",
     "@slack/bolt": "^4.7.2",
     "axios": "^1.16.0",
     "dotenv": "^17.4.2",
