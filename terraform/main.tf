@@ -7,7 +7,7 @@ terraform {
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 7.45.0"
+      version = "~> 8.0.0"
     }
     flux = {
       source  = "fluxcd/flux"
